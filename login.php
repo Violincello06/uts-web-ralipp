@@ -163,7 +163,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
 
     <hr class="divider">
-    <p class="footer-text">Sistem Rental Kamera &copy; <?= date('Y') ?></p>
+    <p class="footer-text" style="font-size:13px;color:#666;">
+        Belum punya akun? <a href="register.php" style="color:#3a7bd5;text-decoration:none;">Daftar di sini</a>
+    </p>
+    <p class="footer-text" style="margin-top:8px;">Sistem Rental Kamera &copy; <?= date('Y') ?></p>
 </div>
 
 </body>
