@@ -10,12 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 // Hapus kamera
 if (isset($_GET['hapus'])) {
     $id = (int) $_GET['hapus'];
-    $cek = $conn->prepare("SELECT id FROM penyewaan WHERE id_kamera = ? AND status = 'dipinjam'");
+
+    // Cek apakah ada riwayat penyewaan (semua status)
+    $cek = $conn->prepare("SELECT id FROM penyewaan WHERE id_kamera = ?");
     $cek->bind_param("i", $id);
     $cek->execute();
     $cek->store_result();
+
     if ($cek->num_rows > 0) {
-        $pesan_error = "Kamera tidak bisa dihapus karena sedang disewa!";
+        $pesan_error = "Kamera tidak bisa dihapus karena memiliki riwayat penyewaan! Hapus data penyewaan terkait terlebih dahulu.";
     } else {
         $conn->query("DELETE FROM kamera WHERE id = $id");
         header("Location: kamera.php?notif=hapus");
@@ -192,7 +195,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                     <?php endif; ?>
                 </form>
             </div>
-            <a href="add_kamera.php" class="btn btn-success">+ Tambah Kamera</a>
+            <a href="add.php" class="btn btn-success">+ Tambah Kamera</a>
         </div>
 
         <!-- Tabel -->
