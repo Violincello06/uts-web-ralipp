@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = 'Kode kamera sudah digunakan oleh kamera lain!';
         } else {
             $stmt = $conn->prepare("UPDATE kamera SET kode_kamera=?, nama_kamera=?, merk=?, tipe=?, harga_sewa=?, stok=?, deskripsi=?, status=? WHERE id=?");
-            $stmt->bind_param("ssssdisd i", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $deskripsi, $status, $id);
+            $stmt->bind_param("ssssdisdi", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $deskripsi, $status, $id);
 
             if ($stmt->execute()) {
                 header("Location: kamera.php?notif=edit");
