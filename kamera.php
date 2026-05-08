@@ -235,7 +235,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="9"><div class="empty-state">📷 Belum ada data kamera.<br><a href="add_kamera.php">Tambah kamera sekarang »</a></div></td></tr>
+                    <tr><td colspan="9"><div class="empty-state">📷 Belum ada data kamera.<br><a href="add.php">Tambah kamera sekarang »</a></div></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
