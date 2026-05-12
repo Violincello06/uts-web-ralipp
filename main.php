@@ -141,7 +141,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
         <a href="main.php" class="active">📊 Dashboard</a>
         <a href="kamera.php">📷 Data Kamera</a>
         <div class="menu-title">Data</div>
-        <a href="add_kamera.php">➕ Tambah Kamera</a>
+        <a href="add.php">➕ Tambah Kamera</a>
         <div class="menu-title">Akun</div>
         <a href="logout.php">🚪 Logout</a>
     </div>
