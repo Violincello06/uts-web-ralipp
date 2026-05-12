@@ -165,7 +165,6 @@ if ($last) {
         <a href="kamera.php">📷 Data Kamera</a>
         <div class="menu-title">Data</div>
         <a href="add.php" class="active">➕ Tambah Kamera</a>
-        <a href="laporan.php">📄 Laporan</a>
         <div class="menu-title">Akun</div>
         <a href="logout.php">🚪 Logout</a>
     </div>
