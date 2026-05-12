@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="sidebar">
         <div class="menu-title">Menu Utama</div>
         <a href="main.php">📊 Dashboard</a>
-        <a href="kamera.php" class="active">📷 Data Kamera</a>
+        <a href="kamera.php" class="active">📷 DataKamera</a>
         <div class="menu-title">Data</div>
         <a href="add.php">➕ Tambah Kamera</a>
         <a href="laporan.php">📄 Laporan</a>
