@@ -163,6 +163,11 @@ if ($last) {
         <div class="menu-title">Menu Utama</div>
         <a href="main.php">📊 Dashboard</a>
         <a href="kamera.php">📷 Data Kamera</a>
+<<<<<<< HEAD
+=======
+        <a href="pelanggan.php">👤 Pelanggan</a>
+        <a href="penyewaan.php">📋 Penyewaan</a>
+>>>>>>> 1b7042cad935a134c88c013e814ecf0ba9384291
         <div class="menu-title">Data</div>
         <a href="add_kamera.php" class="active">➕ Tambah Kamera</a>
         <a href="laporan.php">📄 Laporan</a>
