@@ -162,22 +162,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="logout.php">Keluar</a>
     </div>
 </div>
-<<<<<<< HEAD
-<!-- test -->
-=======
-
->>>>>>> 1b7042cad935a134c88c013e814ecf0ba9384291
 <div class="wrapper">
     <div class="sidebar">
         <div class="menu-title">Menu Utama</div>
         <a href="main.php">📊 Dashboard</a>
-<<<<<<< HEAD
-        <a href="kamera.php" class="active">📷 DataKamera</a>
-=======
         <a href="kamera.php" class="active">📷 Data Kamera</a>
         <a href="pelanggan.php">👤 Pelanggan</a>
         <a href="penyewaan.php">📋 Penyewaan</a>
->>>>>>> 1b7042cad935a134c88c013e814ecf0ba9384291
         <div class="menu-title">Data</div>
         <a href="add.php">➕ Tambah Kamera</a>
         <a href="laporan.php">📄 Laporan</a>
