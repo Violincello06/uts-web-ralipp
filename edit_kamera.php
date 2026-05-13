@@ -46,8 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($cek->num_rows > 0) {
             $error = 'Kode kamera sudah digunakan oleh kamera lain!';
         } else {
+            $harga_sewa = (float) $harga_sewa;
             $stmt = $conn->prepare("UPDATE kamera SET kode_kamera=?, nama_kamera=?, merk=?, tipe=?, harga_sewa=?, stok=?, deskripsi=?, status=? WHERE id=?");
-            $stmt->bind_param("ssssdisdi", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $deskripsi, $status, $id);
+            $stmt->bind_param("ssssdissi", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $deskripsi, $status, $id);
 
             if ($stmt->execute()) {
                 header("Location: kamera.php?notif=edit");
@@ -197,9 +198,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="form-group">
                             <label>Status <span class="required">*</span></label>
                             <select name="status">
-                                <option value="tersedia" <?= $data['status']=='tersedia' ? 'selected':'' ?>>Tersedia</option>
-                                <option value="disewa"   <?= $data['status']=='disewa'   ? 'selected':'' ?>>Disewa</option>
-                                <option value="rusak"    <?= $data['status']=='rusak'    ? 'selected':'' ?>>Rusak</option>
+                                <option value="tersedia" <?= $data['status']=='tersedia' ? 'selected':'' ?>>tersedia</option>
+                                <option value="disewa"   <?= $data['status']=='disewa'   ? 'selected':'' ?>>disewa</option>
+                                <option value="rusak"    <?= $data['status']=='rusak'    ? 'selected':'' ?>>rusak</option>
                             </select>
                         </div>
                     </div>

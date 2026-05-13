@@ -194,9 +194,9 @@ if ($last) {
                         <div class="form-group">
                             <label>Status <span class="required">*</span></label>
                             <select name="status">
-                                <option value="tersedia" <?= ($_POST['status'] ?? '') == 'tersedia' ? 'selected':'' ?>>Tersedia</option>
-                                <option value="disewa"   <?= ($_POST['status'] ?? '') == 'disewa'   ? 'selected':'' ?>>Disewa</option>
-                                <option value="rusak"    <?= ($_POST['status'] ?? '') == 'rusak'    ? 'selected':'' ?>>Rusak</option>
+                                <option value="tersedia" <?= ($_POST['status'] ?? '') == 'tersedia' ? 'selected':'' ?>>tersedia</option>
+                                <option value="disewa"   <?= ($_POST['status'] ?? '') == 'disewa'   ? 'selected':'' ?>>disewa</option>
+                                <option value="rusak"    <?= ($_POST['status'] ?? '') == 'rusak'    ? 'selected':'' ?>>rusak</option>
                             </select>
                         </div>
                     </div>

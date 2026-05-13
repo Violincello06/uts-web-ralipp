@@ -10,19 +10,12 @@ if (!isset($_SESSION['user_id'])) {
 // Hapus kamera
 if (isset($_GET['hapus'])) {
     $id = (int) $_GET['hapus'];
-
-    // Cek apakah ada riwayat penyewaan (semua status)
-    $cek = $conn->prepare("SELECT id FROM penyewaan WHERE id_kamera = ?");
-    $cek->bind_param("i", $id);
-    $cek->execute();
-    $cek->store_result();
-
-    if ($cek->num_rows > 0) {
-        $pesan_error = "Kamera tidak bisa dihapus karena memiliki riwayat penyewaan! Hapus data penyewaan terkait terlebih dahulu.";
-    } else {
-        $conn->query("DELETE FROM kamera WHERE id = $id");
+    $del = $conn->query("DELETE FROM kamera WHERE id = $id");
+    if ($del) {
         header("Location: kamera.php?notif=hapus");
         exit;
+    } else {
+        $pesan_error = "Kamera tidak bisa dihapus!";
     }
 }
 
@@ -182,9 +175,9 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                     <input type="text" name="cari" placeholder="Cari nama / kode / merk..." value="<?= htmlspecialchars($cari) ?>">
                     <select name="status">
                         <option value="">-- Semua Status --</option>
-                        <option value="tersedia" <?= $filter=='tersedia' ? 'selected':'' ?>>Tersedia</option>
-                        <option value="disewa"   <?= $filter=='disewa'   ? 'selected':'' ?>>Disewa</option>
-                        <option value="rusak"    <?= $filter=='rusak'    ? 'selected':'' ?>>Rusak</option>
+                        <option value="tersedia" <?= $filter=='tersedia' ? 'selected':'' ?>>tersedia</option>
+                        <option value="disewa"   <?= $filter=='disewa'   ? 'selected':'' ?>>disewa</option>
+                        <option value="rusak"    <?= $filter=='rusak'    ? 'selected':'' ?>>rusak</option>
                     </select>
                     <button type="submit" class="btn btn-primary">Cari</button>
                     <?php if (!empty($cari) || !empty($filter)): ?>
