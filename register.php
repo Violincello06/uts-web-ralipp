@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password     = trim($_POST['password']);
     $konfirmasi   = trim($_POST['konfirmasi']);
 
-    // Validasi
     if (empty($username) || empty($nama_lengkap) || empty($email) || empty($password) || empty($konfirmasi)) {
         $error = 'Semua kolom harus diisi!';
     } elseif (strlen($username) < 4) {
@@ -24,34 +23,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif ($password !== $konfirmasi) {
         $error = 'Konfirmasi password tidak cocok!';
     } else {
-        // Cek username sudah ada
         $cek = $conn->prepare("SELECT id FROM users WHERE username = ?");
         $cek->bind_param("s", $username);
         $cek->execute();
         $cek->store_result();
 
         if ($cek->num_rows > 0) {
-            $error = 'Username sudah digunakan, pilih username lain!';
+            $error = 'Username sudah terdaftar!';
         } else {
-            // Cek email sudah ada
-            $cek2 = $conn->prepare("SELECT id FROM users WHERE email = ?");
-            $cek2->bind_param("s", $email);
-            $cek2->execute();
-            $cek2->store_result();
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $role = 'petugas';
 
-            if ($cek2->num_rows > 0) {
-                $error = 'Email sudah terdaftar!';
+            $stmt = $conn->prepare("INSERT INTO users (username, nama_lengkap, email, password, role) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $username, $nama_lengkap, $email, $hashed_password, $role);
+
+            if ($stmt->execute()) {
+                $success = 'Pendaftaran berhasil! Silakan login.';
             } else {
-                // Simpan user baru
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $conn->prepare("INSERT INTO users (username, password, nama_lengkap, email, role) VALUES (?, ?, ?, ?, 'user')");
-                $stmt->bind_param("ssss", $username, $hash, $nama_lengkap, $email);
-
-                if ($stmt->execute()) {
-                    $success = 'Akun berhasil dibuat! Silakan login.';
-                } else {
-                    $error = 'Gagal membuat akun, coba lagi.';
-                }
+                $error = 'Gagal mendaftar, terjadi kesalahan sistem.';
             }
         }
     }
@@ -59,205 +48,107 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Rental Kamera</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daftar Akun - Rental Kamera</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px 0;
-        }
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-7">
+          <div class="card-style shadow-sm p-40">
+            
+            <div class="text-center mb-30">
+              <h2 class="mb-10 text-bold text-success">📝 BUAT AKUN BARU</h2>
+              <p class="text-sm text-gray">Silakan lengkapi data di bawah untuk mendaftar petugas sewa</p>
+            </div>
 
-        .register-wrapper {
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 30px;
-            width: 380px;
-            border-radius: 6px;
-        }
+            <?php if (!empty($error)): ?>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($error) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <?php endif; ?>
 
-        .register-wrapper h2 {
-            text-align: center;
-            margin-bottom: 6px;
-            font-size: 20px;
-            color: #333;
-        }
+            <?php if (!empty($success)): ?>
+              <div class="alert alert-success" role="alert">
+                <?= htmlspecialchars($success) ?> <br>
+                <a href="login.php" class="alert-link text-decoration-none">Klik di sini untuk Login »</a>
+              </div>
+            <?php endif; ?>
 
-        .register-wrapper p.sub {
-            text-align: center;
-            font-size: 13px;
-            color: #777;
-            margin-bottom: 24px;
-        }
+            <?php if (empty($success)): ?>
+              <form method="POST" action="">
+                
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <div class="input-style-1">
+                      <label for="nama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
+                      <input type="text" id="nama_lengkap" name="nama_lengkap"
+                             value="<?= htmlspecialchars($_POST['nama_lengkap'] ?? '') ?>"
+                             placeholder="Nama lengkap Anda" required />
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="input-style-1">
+                      <label for="username">Username <span class="text-danger">*</span></label>
+                      <input type="text" id="username" name="username"
+                             value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                             placeholder="Minimal 4 karakter" autocomplete="off" required />
+                      <p class="text-sm text-muted mt-1"><i class="lni lni-info-circle"></i> Gunakan huruf kecil, tanpa spasi</p>
+                    </div>
+                  </div>
+                </div>
 
-        .form-group {
-            margin-bottom: 14px;
-        }
+                <div class="input-style-1">
+                  <label for="email">Email Aktif <span class="text-danger">*</span></label>
+                  <input type="email" id="email" name="email"
+                         value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                         placeholder="contoh@email.com" required />
+                </div>
 
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-            color: #444;
-        }
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <div class="input-style-1">
+                      <label for="password">Password <span class="text-danger">*</span></label>
+                      <input type="password" id="password" name="password"
+                             placeholder="Minimal 6 karakter" required />
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="input-style-1">
+                      <label for="konfirmasi">Konfirmasi Password <span class="text-danger">*</span></label>
+                      <input type="password" id="konfirmasi" name="konfirmasi"
+                             placeholder="Ulangi password" required />
+                    </div>
+                  </div>
+                </div>
 
-        .form-group input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #bbb;
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-        }
+                <div class="button-group d-flex justify-content-end flex-wrap mt-20 gap-2">
+                  <a href="login.php" class="main-btn dark-btn-outline btn-hover">Batal</a>
+                  <button type="submit" class="main-btn success-btn btn-hover">
+                    <i class="lni lni-checkmark-circle me-2"></i> Daftar Sekarang
+                  </button>
+                </div>
+              </form>
+            <?php endif; ?>
 
-        .form-group input:focus {
-            border-color: #3a7bd5;
-        }
+            <div class="text-center mt-30 pt-20 border-top">
+              <p class="text-sm text-gray">
+                Sudah punya akun resmi? <a href="login.php" class="text-bold text-success text-decoration-none">Masuk ke Sistem</a>
+              </p>
+            </div>
 
-        .form-group .hint {
-            font-size: 11px;
-            color: #999;
-            margin-top: 3px;
-        }
-
-        .btn-register {
-            width: 100%;
-            padding: 10px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 6px;
-        }
-
-        .btn-register:hover {
-            background-color: #219150;
-        }
-
-        .alert-error {
-            background-color: #fdecea;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-            padding: 9px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 16px;
-        }
-
-        .alert-success {
-            background-color: #d1e7dd;
-            border: 1px solid #a3cfbb;
-            color: #0a3622;
-            padding: 9px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 16px;
-        }
-
-        .divider {
-            border: none;
-            border-top: 1px solid #eee;
-            margin: 20px 0;
-        }
-
-        .footer-text {
-            text-align: center;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .footer-text a {
-            color: #3a7bd5;
-            text-decoration: none;
-        }
-
-        .footer-text a:hover {
-            text-decoration: underline;
-        }
-
-        .copyright {
-            text-align: center;
-            font-size: 11px;
-            color: #aaa;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="register-wrapper">
-    <h2>🎥 Rental Kamera</h2>
-    <p class="sub">Buat akun baru untuk mengakses sistem</p>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert-error">⚠️ <?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
-    <?php if (!empty($success)): ?>
-        <div class="alert-success">
-            ✅ <?= htmlspecialchars($success) ?><br>
-            <a href="login.php" style="color:#0a3622;font-weight:bold;">Klik di sini untuk login »</a>
+          </div>
         </div>
-    <?php endif; ?>
+      </div>
+    </div>
 
-    <?php if (empty($success)): ?>
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="nama_lengkap">Nama Lengkap <span style="color:red">*</span></label>
-            <input type="text" id="nama_lengkap" name="nama_lengkap"
-                   value="<?= htmlspecialchars($_POST['nama_lengkap'] ?? '') ?>"
-                   placeholder="Nama lengkap kamu" autocomplete="off">
-        </div>
-
-        <div class="form-group">
-            <label for="username">Username <span style="color:red">*</span></label>
-            <input type="text" id="username" name="username"
-                   value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                   placeholder="Minimal 4 karakter" autocomplete="off">
-            <div class="hint">Huruf kecil, tanpa spasi</div>
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email <span style="color:red">*</span></label>
-            <input type="email" id="email" name="email"
-                   value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                   placeholder="contoh@email.com">
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password <span style="color:red">*</span></label>
-            <input type="password" id="password" name="password"
-                   placeholder="Minimal 6 karakter">
-        </div>
-
-        <div class="form-group">
-            <label for="konfirmasi">Konfirmasi Password <span style="color:red">*</span></label>
-            <input type="password" id="konfirmasi" name="konfirmasi"
-                   placeholder="Ulangi password">
-        </div>
-
-        <button type="submit" class="btn-register">Daftar Sekarang</button>
-    </form>
-    <?php endif; ?>
-
-    <hr class="divider">
-    <p class="footer-text">Sudah punya akun? <a href="login.php">Login di sini</a></p>
-    <p class="copyright">Sistem Rental Kamera &copy; <?= date('Y') ?></p>
-</div>
-
-</body>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

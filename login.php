@@ -32,142 +32,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Rental Kamera</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+          <div class="card-style shadow-sm p-40">
+            
+            <div class="text-center mb-30">
+              <h2 class="mb-10 text-bold text-primary">🎥 RENTAL KAMERA</h2>
+              <p class="text-sm text-gray">Masuk ke sistem manajemen sewa</p>
+            </div>
 
-        .login-wrapper {
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 30px;
-            width: 350px;
-            border-radius: 6px;
-        }
+            <?php if (!empty($error)): ?>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($error) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <?php endif; ?>
 
-        .login-wrapper h2 {
-            text-align: center;
-            margin-bottom: 6px;
-            font-size: 20px;
-            color: #333;
-        }
+            <form method="POST" action="">
+              <div class="input-style-1">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                       placeholder="Masukkan username" autocomplete="off" required />
+              </div>
 
-        .login-wrapper p.sub {
-            text-align: center;
-            font-size: 13px;
-            color: #777;
-            margin-bottom: 24px;
-        }
+              <div class="input-style-1">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Masukkan password" required />
+              </div>
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+              <div class="button-group d-flex justify-content-center flex-wrap mt-20">
+                <button type="submit" class="main-btn primary-btn w-100 btn-hover">
+                  <i class="lni lni-enter me-2"></i> Masuk
+                </button>
+              </div>
+            </form>
 
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-            color: #444;
-        }
+            <div class="text-center mt-30 pt-20 border-top">
+              <p class="text-sm text-gray">
+                Belum punya akun? <a href="register.php" class="text-bold text-primary text-decoration-none">Daftar di sini</a>
+              </p>
+            </div>
 
-        .form-group input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #bbb;
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: #3a7bd5;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 10px;
-            background-color: #3a7bd5;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-
-        .btn-login:hover {
-            background-color: #2f64b0;
-        }
-
-        .alert-error {
-            background-color: #fdecea;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-            padding: 9px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 16px;
-        }
-
-        .divider {
-            border: none;
-            border-top: 1px solid #eee;
-            margin: 20px 0;
-        }
-
-        .footer-text {
-            text-align: center;
-            font-size: 12px;
-            color: #aaa;
-        }
-    </style>
-</head>
-<body>
-
-<div class="login-wrapper">
-    <h2>🎥 Rental Kamera</h2>
-    <p class="sub">Masuk ke sistem manajemen sewa</p>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert-error"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username"
-                   value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                   placeholder="Masukkan username" autocomplete="off">
+          </div>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password"
-                   placeholder="Masukkan password">
-        </div>
-        <button type="submit" class="btn-login">Masuk</button>
-    </form>
+      </div>
+    </div>
 
-    <hr class="divider">
-    <p class="footer-text" style="font-size:13px;color:#666;">
-        Belum punya akun? <a href="register.php" style="color:#3a7bd5;text-decoration:none;">Daftar di sini</a>
-    </p>
-    <p class="footer-text" style="margin-top:8px;">Sistem Rental Kamera &copy; <?= date('Y') ?></p>
-</div>
-
-</body>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
