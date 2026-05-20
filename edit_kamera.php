@@ -36,8 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = 'Kode kamera, nama kamera, dan harga sewa wajib diisi!';
     } elseif (!is_numeric($harga_sewa) || $harga_sewa < 0) {
         $error = 'Harga sewa harus berupa angka positif!';
+    } elseif ($stok < 0) {
+        $error = 'Stok tidak boleh negatif!';
     } else {
-        // Cek kode duplikat (selain id ini)
+        // Cek kode kamera duplikat (abaikan milik sendiri)
         $cek = $conn->prepare("SELECT id FROM kamera WHERE kode_kamera = ? AND id != ?");
         $cek->bind_param("si", $kode_kamera, $id);
         $cek->execute();
@@ -46,221 +48,206 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($cek->num_rows > 0) {
             $error = 'Kode kamera sudah digunakan oleh kamera lain!';
         } else {
-            $harga_sewa = (float) $harga_sewa;
-            $stmt = $conn->prepare("UPDATE kamera SET kode_kamera=?, nama_kamera=?, merk=?, tipe=?, harga_sewa=?, stok=?, deskripsi=?, status=? WHERE id=?");
+            $stmt = $conn->prepare("UPDATE kamera SET kode_kamera = ?, nama_kamera = ?, merk = ?, tipe = ?, harga_sewa = ?, stok = ?, deskripsi = ?, status = ? WHERE id = ?");
             $stmt->bind_param("ssssdissi", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $deskripsi, $status, $id);
 
             if ($stmt->execute()) {
                 header("Location: kamera.php?notif=edit");
                 exit;
             } else {
-                $error = 'Gagal memperbarui data, coba lagi!';
+                $error = 'Gagal menyimpan perubahan data.';
             }
         }
     }
-
-    // Update tampilan form dengan data POST
-    $data = [
-        'kode_kamera' => $kode_kamera,
-        'nama_kamera' => $nama_kamera,
-        'merk'        => $merk,
-        'tipe'        => $tipe,
-        'harga_sewa'  => $harga_sewa,
-        'stok'        => $stok,
-        'deskripsi'   => $deskripsi,
-        'status'      => $status,
-    ];
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Kamera - Rental Kamera</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; }
 
-        .navbar {
-            background-color: #3a7bd5; color: white;
-            padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .navbar .brand { font-size: 18px; font-weight: bold; }
-        .navbar a { color: white; text-decoration: none; font-size: 13px; }
-        .navbar a:hover { text-decoration: underline; }
-
-        .wrapper { display: flex; min-height: calc(100vh - 48px); }
-
-        .sidebar { width: 200px; background-color: #2c3e50; padding: 16px 0; flex-shrink: 0; }
-        .sidebar a {
-            display: block; color: #ccc; text-decoration: none;
-            padding: 10px 20px; font-size: 14px; border-left: 3px solid transparent;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #3d5166; color: white; border-left-color: #3a7bd5;
-        }
-        .sidebar .menu-title {
-            font-size: 11px; text-transform: uppercase; color: #666;
-            padding: 14px 20px 6px; letter-spacing: 0.05em;
-        }
-
-        .content { flex: 1; padding: 24px; }
-        .page-title { font-size: 20px; margin-bottom: 4px; }
-        .page-sub { font-size: 13px; color: #777; margin-bottom: 20px; }
-
-        .form-box {
-            background: white; border: 1px solid #ddd;
-            border-radius: 6px; max-width: 600px;
-        }
-        .form-head {
-            padding: 12px 16px; border-bottom: 1px solid #eee;
-            font-size: 14px; font-weight: bold;
-        }
-        .form-body { padding: 20px; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #444; }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%; padding: 8px 10px;
-            border: 1px solid #bbb; border-radius: 4px;
-            font-size: 14px; outline: none; font-family: Arial, sans-serif;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus { border-color: #3a7bd5; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .form-group .hint { font-size: 11px; color: #999; margin-top: 3px; }
-
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-        .btn {
-            padding: 8px 18px; border: none; border-radius: 4px;
-            font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block;
-        }
-        .btn-warning   { background: #e67e22; color: white; }
-        .btn-warning:hover { background: #cf6d17; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        .btn-secondary:hover { background: #7f8c8d; }
-
-        .alert-danger {
-            background: #fdecea; border: 1px solid #f5c2c7;
-            color: #842029; padding: 10px 14px;
-            border-radius: 4px; font-size: 13px; margin-bottom: 16px;
-        }
-        .required { color: red; }
-    </style>
-</head>
-<body>
-
-<div class="navbar">
-    <div class="brand">🎥 Rental Kamera</div>
-    <div style="display:flex;gap:16px;align-items:center;">
-        <span style="font-size:13px;">Halo, <strong><?= htmlspecialchars($_SESSION['nama_lengkap']) ?></strong></span>
-        <a href="logout.php">Keluar</a>
-    </div>
-</div>
-<div class="wrapper">
-    <div class="sidebar">
-        <div class="menu-title">Menu Utama</div>
-        <a href="main.php">📊 Dashboard</a>
-        <a href="kamera.php" class="active">📷 Data Kamera</a>
-        <div class="menu-title">Data</div>
-        <a href="add.php">➕ Tambah Kamera</a>
-        <a href="laporan.php">📄 Laporan</a>
-        <div class="menu-title">Akun</div>
-        <a href="logout.php">🚪 Logout</a>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body>
+    <div id="preloader">
+      <div class="spinner"></div>
     </div>
 
-    <div class="content">
-        <div class="page-title">✏️ Edit Kamera</div>
-        <div class="page-sub">Perbarui data kamera yang sudah ada.</div>
-
-        <div class="form-box">
-            <div class="form-head">Form Edit Kamera</div>
-            <div class="form-body">
+    <aside class="sidebar-nav-wrapper">
+      <div class="navbar-logo">
+        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">📷 RENTAL KAMERA</a>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="nav-item">
+            <a href="main.php">
+              <span class="icon"><i class="lni lni-dashboard"></i></span>
+              <span class="text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="kamera.php">
+              <span class="icon"><i class="lni lni-camera"></i></span>
+              <span class="text">Data Kamera</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="logout.php">
+              <span class="icon"><i class="lni lni-exit"></i></span>
+              <span class="text">Keluar</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="overlay"></div>
+    <main class="main-wrapper">
+      <header class="header">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-5 col-md-5 col-6">
+              <div class="header-left d-flex align-items-center">
+                <div class="menu-toggle-btn mr-15">
+                  <button id="menu-toggle" class="main-btn primary-btn btn-hover">
+                    <i class="lni lni-chevron-left me-2"></i> Menu
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <section class="section">
+        <div class="container-fluid">
+          <div class="title-wrapper pt-30">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="title">
+                  <h2>Ubah Data Kamera</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card-style mb-30">
+                <h6 class="mb-25 text-medium">Formulir Pembaruan Data</h6>
 
                 <?php if (!empty($error)): ?>
-                    <div class="alert-danger">⚠️ <?= htmlspecialchars($error) ?></div>
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
                 <?php endif; ?>
 
                 <form method="POST" action="">
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Kode Kamera <span class="required">*</span></label>
-                            <input type="text" name="kode_kamera"
-                                   value="<?= htmlspecialchars($data['kode_kamera']) ?>">
-                        </div>
-                        <div class="form-group">
-                            <label>Status <span class="required">*</span></label>
-                            <select name="status">
-                                <option value="tersedia" <?= $data['status']=='tersedia' ? 'selected':'' ?>>tersedia</option>
-                                <option value="disewa"   <?= $data['status']=='disewa'   ? 'selected':'' ?>>disewa</option>
-                                <option value="rusak"    <?= $data['status']=='rusak'    ? 'selected':'' ?>>rusak</option>
-                            </select>
-                        </div>
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <div class="input-style-1">
+                        <label>Kode Kamera <span class="text-danger">*</span></label>
+                        <input type="text" name="kode_kamera" value="<?= htmlspecialchars($_POST['kode_kamera'] ?? $data['kode_kamera']) ?>" required />
+                      </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>Nama Kamera <span class="required">*</span></label>
-                        <input type="text" name="nama_kamera"
-                               value="<?= htmlspecialchars($data['nama_kamera']) ?>">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Merk</label>
-                            <input type="text" name="merk"
-                                   value="<?= htmlspecialchars($data['merk']) ?>">
+                    <div class="col-12 col-md-6">
+                      <div class="select-style-1">
+                        <label>Status Operasional</label>
+                        <div class="select-position">
+                          <select name="status" class="light-bg">
+                            <?php 
+                            $curr_status = $_POST['status'] ?? $data['status'];
+                            $options = [
+                              'tersedia' => 'Tersedia (Ready)',
+                              'disewa'   => 'Sedang Disewa',
+                              'rusak'    => 'Rusak / Maintenance'
+                            ];
+                            foreach ($options as $val => $label): ?>
+                              <option value="<?= $val ?>" <?= $curr_status == $val ? 'selected' : '' ?>><?= $label ?></option>
+                            <?php endforeach; ?>
+                          </select>
                         </div>
-                        <div class="form-group">
-                            <label>Tipe</label>
-                            <select name="tipe">
-                                <option value="">-- Pilih Tipe --</option>
-                                <?php
-                                $tipe_list = ['DSLR','Mirrorless','Action Cam','Pocket','Medium Format','Film'];
-                                foreach ($tipe_list as $t):
-                                    $sel = $data['tipe'] == $t ? 'selected' : '';
-                                ?>
-                                <option value="<?= $t ?>" <?= $sel ?>><?= $t ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Harga Sewa / Hari (Rp) <span class="required">*</span></label>
-                            <input type="number" name="harga_sewa" min="0"
-                                   value="<?= htmlspecialchars($data['harga_sewa']) ?>">
-                        </div>
-                        <div class="form-group">
-                            <label>Stok (unit)</label>
-                            <input type="number" name="stok" min="0"
-                                   value="<?= htmlspecialchars($data['stok']) ?>">
-                        </div>
+                  <div class="input-style-1">
+                    <label>Nama Kamera <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_kamera" placeholder="Contoh: Sony Alpha A7 III" value="<?= htmlspecialchars($_POST['nama_kamera'] ?? $data['nama_kamera']) ?>" required />
+                  </div>
+
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <div class="input-style-1">
+                        <label>Merk / Brand</label>
+                        <input type="text" name="merk" placeholder="Sony, Canon, Fujifilm..." value="<?= htmlspecialchars($_POST['merk'] ?? $data['merk']) ?>" />
+                      </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>Deskripsi</label>
-                        <textarea name="deskripsi"><?= htmlspecialchars($data['deskripsi']) ?></textarea>
+                    <div class="col-12 col-md-6">
+                      <div class="input-style-1">
+                        <label>Tipe Kamera</label>
+                        <input type="text" name="tipe" placeholder="Mirrorless, DSLR, Action..." value="<?= htmlspecialchars($_POST['tipe'] ?? $data['tipe']) ?>" />
+                      </div>
                     </div>
+                  </div>
 
-                    <div style="display:flex;gap:10px;margin-top:4px;">
-                        <button type="submit" class="btn btn-warning">💾 Simpan Perubahan</button>
-                        <a href="kamera.php" class="btn btn-secondary">Batal</a>
+                  <div class="row">
+                    <div class="col-12 col-md-6">
+                      <div class="input-style-1">
+                        <label>Harga Sewa / Hari (Rp) <span class="text-danger">*</span></label>
+                        <input type="number" name="harga_sewa" min="0" value="<?= htmlspecialchars($_POST['harga_sewa'] ?? $data['harga_sewa']) ?>" required />
+                      </div>
                     </div>
+                    <div class="col-12 col-md-6">
+                      <div class="input-style-1">
+                        <label>Stok (unit)</label>
+                        <input type="number" name="stok" min="0" value="<?= htmlspecialchars($_POST['stok'] ?? $data['stok']) ?>" />
+                      </div>
+                    </div>
+                  </div>
 
+                  <div class="input-style-1">
+                    <label>Deskripsi & Kelengkapan</label>
+                    <textarea name="deskripsi" placeholder="Spesifikasi singkat..." rows="4"><?= htmlspecialchars($_POST['deskripsi'] ?? $data['deskripsi']) ?></textarea>
+                  </div>
+
+                  <div class="d-flex gap-2 justify-content-end mt-20">
+                    <a href="kamera.php" class="main-btn secondary-btn btn-hover">Batal</a>
+                    <button type="submit" class="main-btn warning-btn btn-hover">💾 Simpan Perubahan</button>
+                  </div>
                 </form>
+
+              </div>
             </div>
+          </div>
         </div>
+      </section>
+      </main>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Kontrol navigasi sidebar menu toggle responsive
+      const menuToggleButton = document.getElementById('menu-toggle');
+      const sidebarNavWrapper = document.querySelector('.sidebar-nav-wrapper');
+      const mainWrapper = document.querySelector('.main-wrapper');
+      const overlay = document.querySelector('.overlay');
 
-    </div>
-</div>
-
-</body>
+      menuToggleButton.addEventListener('click', () => {
+        sidebarNavWrapper.classList.toggle('active');
+        mainWrapper.classList.toggle('active');
+        overlay.classList.toggle('active');
+      });
+      overlay.addEventListener('click', () => {
+        sidebarNavWrapper.classList.remove('active');
+        mainWrapper.classList.remove('active');
+        overlay.classList.remove('active');
+      });
+      window.addEventListener('load', () => {
+        document.getElementById('preloader').style.display = 'none';
+      });
+    </script>
+  </body>
 </html>
