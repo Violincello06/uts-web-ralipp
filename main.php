@@ -10,13 +10,16 @@ if (!isset($_SESSION['user_id'])) {
 // Mengambil data user untuk header profil dinamis
 $nama_user_login  = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
 
-// Statistik kamera (dipertahankan untuk kebutuhan data real-time grafik)
+// Statistik kamera
 $total_kamera = $conn->query("SELECT COUNT(*) as total FROM kamera")->fetch_assoc()['total'];
 $tersedia     = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='tersedia'")->fetch_assoc()['total'];
 $disewa       = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='disewa'")->fetch_assoc()['total'];
 $rusak        = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='rusak'")->fetch_assoc()['total'];
 
-// Mengambil daftar kamera terbaru dari database (Maksimal 10)
+// Mengambil semua daftar kamera untuk animasi ticker berjalan
+$kamera_ticker = $conn->query("SELECT nama_kamera, merk, status FROM kamera ORDER BY nama_kamera ASC");
+
+// Mengambil 10 data kamera terbaru untuk tabel bawah
 $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT 10");
 ?>
 <!DOCTYPE html>
@@ -31,6 +34,106 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+
+    <style>
+      /* Background Modern Gradient Global */
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%) !important;
+        background-attachment: fixed;
+        min-height: 100vh;
+      }
+      .main-wrapper {
+        background: transparent !important;
+      }
+
+      /* Struktur Animasi Ticker Berjalan */
+      .ticker-wrapper {
+        width: 100%;
+        overflow: hidden;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 18px 0;
+        display: flex;
+        align-items: center;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      .ticker-title {
+        background: #365CF5;
+        color: #ffffff;
+        padding: 18px 25px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 1px;
+        position: absolute;
+        z-index: 5;
+        border-radius: 12px 0 0 12px;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: -18px;
+        height: 78px;
+      }
+
+      .ticker-content {
+        display: flex;
+        white-space: nowrap;
+        padding-left: 200px; /* Memberikan ruang agar tidak tertabrak judul */
+        animation: ticker-move 25s linear infinite;
+      }
+
+      /* Efek Pause Saat Mouse Diarahkan ke Ticker */
+      .ticker-wrapper:hover .ticker-content {
+        animation-play-state: paused;
+        cursor: pointer;
+      }
+
+      .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 30px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #24292d;
+        border-right: 2px solid #e2e8f0;
+      }
+
+      .ticker-item .brand {
+        color: #8f92a1;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-right: 6px;
+        background: #f1f5f9;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .ticker-item .badge-status {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 30px;
+        margin-left: 10px;
+        font-weight: 700;
+      }
+
+      .status-tersedia { background-color: #e6f7ed; color: #219653; }
+      .status-disewa { background-color: #fef5ec; color: #f2994a; }
+      .status-rusak { background-color: #fdebae; color: #d32f2f; }
+
+      /* Keyframes Pergerakan Ticker Horizontal */
+      @keyframes ticker-move {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+        100% {
+          transform: translate3d(-100%, 0, 0);
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="preloader">
@@ -39,7 +142,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
 
     <aside class="sidebar-nav-wrapper">
       <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">📷 RENTAL KAMERA</a>
+        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">RENTAL KAMERA</a>
       </div>
       <nav class="sidebar-nav">
         <ul>
@@ -106,7 +209,8 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
       </header>
       <section class="section">
         <div class="container-fluid">
-          <div class="title-wrapper pt-30">
+          
+          <div class="title-wrapper pt-30 mb-20">
             <div class="row align-items-center">
               <div class="col-md-6">
                 <div class="title">
@@ -115,85 +219,43 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
               </div>
             </div>
           </div>
-          <div class="title-wrapper mb-20">
-            <h5 class="text-medium text-dark">Katalog Visual Kamera</h5>
-          </div>
-          
-          <div class="row">
-            <?php 
-            // Mapping Gambar Berdasarkan Merk / Nama Kamera bawaan agar presisi dengan aset Anda
-            $images_map = [
-                'sony'     => 'image_f4496d.jpg',
-                'nikon'    => 'image_f449b0.jpg',
-                'canon'    => 'image_f449ed.jpg',
-                'fujifilm' => 'image_f44cd0.jpg'
-            ];
 
-            if($kamera_list->num_rows > 0):
-              $counter = 0;
-              while($row = $kamera_list->fetch_assoc()): 
-                if($counter >= 4) break; // Batasi tampilan galeri atas hanya 4 kamera teratas
-                $counter++;
-
-                // Menentukan gambar berdasarkan kolom merk database
-                $merk_key = strtolower($row['merk']);
-                $gambar_kamera = 'assets/images/default-camera.jpg'; // fallback jika tidak cocok
-                
-                foreach ($images_map as $key => $file_img) {
-                    if (strpos($merk_key, $key) !== false) {
-                        $gambar_kamera = 'assets/images/' . $file_img;
-                        break;
-                    }
-                }
-            ?>
-              <div class="col-xl-3 col-lg-4 col-sm-6">
-                <div class="card-style mb-30 p-0 overflow-hidden shadow-sm h-100 d-flex flex-column justify-content-between">
-                  
-                  <div class="image-box text-center d-flex align-items-center justify-content-center p-3 bg-white" style="height: 200px; position: relative;">
-                    <img src="<?= $gambar_kamera ?>" alt="<?= htmlspecialchars($row['nama_kamera']) ?>" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                    
-                    <div style="position: absolute; top: 15px; right: 15px;">
-                      <?php if($row['status'] == 'tersedia'): ?>
-                        <span class="status-btn success-btn btn-sm text-xs px-2 py-1">Tersedia</span>
-                      <?php elseif($row['status'] == 'disewa'): ?>
-                        <span class="status-btn warning-btn btn-sm text-xs px-2 py-1">Disewa</span>
-                      <?php else: ?>
-                        <span class="status-btn danger-btn btn-sm text-xs px-2 py-1">Rusak</span>
-                      <?php endif; ?>
-                    </div>
-                  </div>
-                  
-                  <div class="p-20 flex-grow-1 d-flex flex-column justify-content-between bg-white border-top">
-                    <div>
-                      <span class="text-xs text-muted text-uppercase fw-bold"><?= htmlspecialchars($row['merk']) ?></span>
-                      <h5 class="text-medium text-dark mb-10 mt-5"><?= htmlspecialchars($row['nama_kamera']) ?></h5>
-                      <p class="text-sm text-gray mb-15"><?= htmlspecialchars($row['deskripsi'] ?: 'Kamera berspesifikasi premium siap sewa.') ?></p>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center pt-10 border-top mt-auto">
-                      <span class="text-xs text-gray">Harga Sewa:</span>
-                      <span class="text-sm fw-bold text-primary">Rp <?= number_format($row['harga_sewa'], 0, ',', '.') ?> / Hari</span>
-                    </div>
-                  </div>
-
+          <div class="row mb-30">
+            <div class="col-12" style="position: relative;">
+              <div class="ticker-title">
+                <i class="lni lni-bullhorn"></i> Live Ready
+              </div>
+              <div class="ticker-wrapper">
+                <div class="ticker-content">
+                  <?php 
+                  if ($kamera_ticker && $kamera_ticker->num_rows > 0):
+                    // Kita lakukan perulangan 2 kali agar teks bersambung tanpa putus di layar luas
+                    for ($i = 0; $i < 2; $i++):
+                      $kamera_ticker->data_seek(0);
+                      while ($cam = $kamera_ticker->fetch_assoc()):
+                        $status_class = 'status-' . strtolower($cam['status']);
+                        $status_text  = ucfirst($cam['status']);
+                  ?>
+                        <div class="ticker-item">
+                          <span class="brand"><?= htmlspecialchars($cam['merk']) ?></span>
+                          <span class="name"><?= htmlspecialchars($cam['nama_kamera']) ?></span>
+                          <span class="badge-status <?= $status_class ?>"><?= $status_text ?></span>
+                        </div>
+                  <?php 
+                      endwhile;
+                    endfor;
+                  else:
+                  ?>
+                    <div class="ticker-item text-muted">Belum ada data kamera tersedia di database.</div>
+                  <?php endif; ?>
                 </div>
               </div>
-            <?php 
-              endwhile;
-              // Reset kembali pointer list agar data tabel di bawah tidak kosong
-              $kamera_list->data_seek(0);
-            else: 
-            ?>
-              <div class="col-12">
-                <div class="card-style text-center p-40 mb-30">
-                  <p class="text-muted">Belum ada data inventaris kamera di sistem.</p>
-                </div>
-              </div>
-            <?php endif; ?>
+            </div>
           </div>
           <div class="row">
             <div class="col-lg-7">
-              <div class="card-style mb-30">
-                <div class="title d-flex justify-content-between align-items-center mb-20">
+              <div class="card-style mb-30 shadow-sm border-0">
+                <div class="title mb-20">
                   <h6 class="text-medium">Perbandingan Status Kamera</h6>
                 </div>
                 <div class="chart-container" style="position: relative; height:300px;">
@@ -203,8 +265,8 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
             </div>
             
             <div class="col-lg-5">
-              <div class="card-style mb-30">
-                <div class="title d-flex justify-content-between align-items-center mb-20">
+              <div class="card-style mb-30 shadow-sm border-0">
+                <div class="title mb-20">
                   <h6 class="text-medium">Persentase Kontribusi</h6>
                 </div>
                 <div class="chart-container" style="position: relative; height:300px;">
@@ -213,12 +275,13 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
               </div>
             </div>
           </div>
+
           <div class="row">
             <div class="col-lg-12">
-              <div class="card-style mb-30">
+              <div class="card-style mb-30 shadow-sm border-0">
                 <div class="title d-flex justify-content-between align-items-center flex-wrap mb-20">
-                  <h6 class="text-medium mb-10">Kamera Terbaru</h6>
-                  <a href="kamera.php" class="main-btn primary-btn-outline btn-hover btn-sm mb-10">Lihat Semua</a>
+                  <h6 class="text-medium mb-10">Daftar Input Terbaru</h6>
+                  <a href="kamera.php" class="main-btn primary-btn-outline btn-hover btn-sm mb-10">Kelola Semua Data</a>
                 </div>
                 <div class="table-wrapper table-responsive">
                   <table class="table">
@@ -252,7 +315,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
                         <?php endwhile; ?>
                       <?php else: ?>
                         <tr>
-                          <td colspan="5" class="text-center"><p class="text-muted">Belum ada data kamera.</p></td>
+                          <td colspan="5" class="text-center"><p class="text-muted py-3">Belum ada data records.</p></td>
                         </tr>
                       <?php endif; ?>
                     </tbody>
@@ -261,9 +324,11 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
               </div>
             </div>
           </div>
-          </div>
+
+        </div>
       </section>
-      </main>
+    </main>
+
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

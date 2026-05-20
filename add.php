@@ -140,7 +140,7 @@ if ($last) {
 
           <div class="d-flex gap-2 justify-content-end mt-20">
             <a href="kamera.php" class="main-btn secondary-btn btn-hover">Batal</a>
-            <button type="submit" class="main-btn success-btn btn-hover">💾 Simpan Kamera</button>
+            <button type="submit" class="main-btn success-btn btn-hover"> Simpan Kamera</button>
           </div>
         </form>
       </div>

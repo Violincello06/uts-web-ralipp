@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <aside class="sidebar-nav-wrapper">
       <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">📷 RENTAL KAMERA</a>
+        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">RENTAL KAMERA</a>
       </div>
       <nav class="sidebar-nav">
         <ul>
@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                   <div class="d-flex gap-2 justify-content-end mt-20">
                     <a href="kamera.php" class="main-btn secondary-btn btn-hover">Batal</a>
-                    <button type="submit" class="main-btn warning-btn btn-hover">💾 Simpan Perubahan</button>
+                    <button type="submit" class="main-btn warning-btn btn-hover"> Simpan Perubahan</button>
                   </div>
                 </form>
 

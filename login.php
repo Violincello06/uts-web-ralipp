@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <div class="card-style shadow-sm p-40">
             
             <div class="text-center mb-30">
-              <h2 class="mb-10 text-bold text-primary">🎥 RENTAL KAMERA</h2>
+              <h2 class="mb-10 text-bold text-primary">RENTAL KAMERA</h2>
               <p class="text-sm text-gray">Masuk ke sistem manajemen sewa</p>
             </div>
 

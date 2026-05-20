@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <div class="card-style shadow-sm p-40">
             
             <div class="text-center mb-30">
-              <h2 class="mb-10 text-bold text-success">📝 BUAT AKUN BARU</h2>
+              <h2 class="mb-10 text-bold text-success"> BUAT AKUN BARU</h2>
               <p class="text-sm text-gray">Silakan lengkapi data di bawah untuk mendaftar petugas sewa</p>
             </div>
 

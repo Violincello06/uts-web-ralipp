@@ -42,7 +42,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
   <body>
     <aside class="sidebar-nav-wrapper">
       <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">📷 RENTAL KAMERA</a>
+        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none"> RENTAL KAMERA</a>
       </div>
       <nav class="sidebar-nav">
         <ul>
