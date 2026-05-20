@@ -7,13 +7,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Statistik kamera
+// Mengambil data user untuk header profil dinamis
+$nama_user_login  = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];
+
+// Statistik kamera (dipertahankan untuk kebutuhan data real-time grafik)
 $total_kamera = $conn->query("SELECT COUNT(*) as total FROM kamera")->fetch_assoc()['total'];
 $tersedia     = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='tersedia'")->fetch_assoc()['total'];
 $disewa       = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='disewa'")->fetch_assoc()['total'];
 $rusak        = $conn->query("SELECT COUNT(*) as total FROM kamera WHERE status='rusak'")->fetch_assoc()['total'];
 
-// Semua kamera terbaru
+// Mengambil daftar kamera terbaru dari database (Maksimal 10)
 $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT 10");
 ?>
 <!DOCTYPE html>
@@ -75,6 +78,29 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
                 </div>
               </div>
             </div>
+            
+            <div class="col-lg-7 col-md-7 col-6">
+              <div class="header-right d-flex align-items-center justify-content-end">
+                <div class="profile-box ml-15">
+                  <button class="dropdown-toggle bg-transparent border-0 d-flex align-items-center" type="button" id="profile" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="profile-info d-none d-md-block text-end me-3">
+                      <h6 class="text-sm fw-bold text-dark"><?= htmlspecialchars($nama_user_login) ?></h6>
+                      <p class="text-xs text-muted">@<?= htmlspecialchars($_SESSION['username']) ?></p>
+                    </div>
+                    <div class="avatar-image bg-primary d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 40px; height: 40px; border-radius: 50%;">
+                      <i class="lni lni-user text-lg"></i>
+                    </div>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end p-2 shadow-sm border-0 mt-2" aria-labelledby="profile">
+                    <li>
+                      <a class="dropdown-item py-2 text-danger" href="logout.php">
+                        <i class="lni lni-exit me-2"></i> Keluar Aplikasi
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -89,43 +115,80 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
               </div>
             </div>
           </div>
+          <div class="title-wrapper mb-20">
+            <h5 class="text-medium text-dark">Katalog Visual Kamera</h5>
+          </div>
+          
           <div class="row">
-            <div class="col-xl-3 col-lg-4 col-sm-6">
-              <div class="icon-card mb-30">
-                <div class="icon primary"><i class="lni lni-layers"></i></div>
-                <div class="content">
-                  <h6 class="text-gray mb-10">Total Kamera</h6>
-                  <h3 class="text-bold mb-10"><?= $total_kamera ?></h3>
+            <?php 
+            // Mapping Gambar Berdasarkan Merk / Nama Kamera bawaan agar presisi dengan aset Anda
+            $images_map = [
+                'sony'     => 'image_f4496d.jpg',
+                'nikon'    => 'image_f449b0.jpg',
+                'canon'    => 'image_f449ed.jpg',
+                'fujifilm' => 'image_f44cd0.jpg'
+            ];
+
+            if($kamera_list->num_rows > 0):
+              $counter = 0;
+              while($row = $kamera_list->fetch_assoc()): 
+                if($counter >= 4) break; // Batasi tampilan galeri atas hanya 4 kamera teratas
+                $counter++;
+
+                // Menentukan gambar berdasarkan kolom merk database
+                $merk_key = strtolower($row['merk']);
+                $gambar_kamera = 'assets/images/default-camera.jpg'; // fallback jika tidak cocok
+                
+                foreach ($images_map as $key => $file_img) {
+                    if (strpos($merk_key, $key) !== false) {
+                        $gambar_kamera = 'assets/images/' . $file_img;
+                        break;
+                    }
+                }
+            ?>
+              <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="card-style mb-30 p-0 overflow-hidden shadow-sm h-100 d-flex flex-column justify-content-between">
+                  
+                  <div class="image-box text-center d-flex align-items-center justify-content-center p-3 bg-white" style="height: 200px; position: relative;">
+                    <img src="<?= $gambar_kamera ?>" alt="<?= htmlspecialchars($row['nama_kamera']) ?>" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                      <?php if($row['status'] == 'tersedia'): ?>
+                        <span class="status-btn success-btn btn-sm text-xs px-2 py-1">Tersedia</span>
+                      <?php elseif($row['status'] == 'disewa'): ?>
+                        <span class="status-btn warning-btn btn-sm text-xs px-2 py-1">Disewa</span>
+                      <?php else: ?>
+                        <span class="status-btn danger-btn btn-sm text-xs px-2 py-1">Rusak</span>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                  
+                  <div class="p-20 flex-grow-1 d-flex flex-column justify-content-between bg-white border-top">
+                    <div>
+                      <span class="text-xs text-muted text-uppercase fw-bold"><?= htmlspecialchars($row['merk']) ?></span>
+                      <h5 class="text-medium text-dark mb-10 mt-5"><?= htmlspecialchars($row['nama_kamera']) ?></h5>
+                      <p class="text-sm text-gray mb-15"><?= htmlspecialchars($row['deskripsi'] ?: 'Kamera berspesifikasi premium siap sewa.') ?></p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-10 border-top mt-auto">
+                      <span class="text-xs text-gray">Harga Sewa:</span>
+                      <span class="text-sm fw-bold text-primary">Rp <?= number_format($row['harga_sewa'], 0, ',', '.') ?> / Hari</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
-            </div>
-            <div class="col-xl-3 col-lg-4 col-sm-6">
-              <div class="icon-card mb-30">
-                <div class="icon success"><i class="lni lni-checkmark-circle"></i></div>
-                <div class="content">
-                  <h6 class="text-gray mb-10">Tersedia</h6>
-                  <h3 class="text-bold mb-10"><?= $tersedia ?></h3>
+            <?php 
+              endwhile;
+              // Reset kembali pointer list agar data tabel di bawah tidak kosong
+              $kamera_list->data_seek(0);
+            else: 
+            ?>
+              <div class="col-12">
+                <div class="card-style text-center p-40 mb-30">
+                  <p class="text-muted">Belum ada data inventaris kamera di sistem.</p>
                 </div>
               </div>
-            </div>
-            <div class="col-xl-3 col-lg-4 col-sm-6">
-              <div class="icon-card mb-30">
-                <div class="icon orange"><i class="lni lni-reload"></i></div>
-                <div class="content">
-                  <h6 class="text-gray mb-10">Disewa</h6>
-                  <h3 class="text-bold mb-10"><?= $disewa ?></h3>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-lg-4 col-sm-6">
-              <div class="icon-card mb-30">
-                <div class="icon danger"><i class="lni lni-warning"></i></div>
-                <div class="content">
-                  <h6 class="text-gray mb-10">Rusak</h6>
-                  <h3 class="text-bold mb-10"><?= $rusak ?></h3>
-                </div>
-              </div>
-            </div>
+            <?php endif; ?>
           </div>
           <div class="row">
             <div class="col-lg-7">
@@ -142,7 +205,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
             <div class="col-lg-5">
               <div class="card-style mb-30">
                 <div class="title d-flex justify-content-between align-items-center mb-20">
-                  <h6 class="text-medium">Persentase Circle</h6>
+                  <h6 class="text-medium">Persentase Kontribusi</h6>
                 </div>
                 <div class="chart-container" style="position: relative; height:300px;">
                   <canvas id="statusPieChart"></canvas>
@@ -202,49 +265,34 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
       </section>
       </main>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-      // 1. Ambil data dari PHP ke JavaScript
       const dataTersedia = <?= $tersedia ?>;
       const dataDisewa   = <?= $disewa ?>;
       const dataRusak    = <?= $rusak ?>;
 
-      // 2. Konfigurasi Grafik Batang (Bar Chart)
       const ctxBar = document.getElementById('statusBarChart').getContext('2d');
       new Chart(ctxBar, {
         type: 'bar',
         data: {
-          labels: ['Tersedia', 'Sedang Disewa', 'Rusak / Perbaikan'],
+          labels: ['Tersedia', 'Sedang Disewa', 'Rusak'],
           datasets: [{
             label: 'Jumlah Kamera',
             data: [dataTersedia, dataDisewa, dataRusak],
-            backgroundColor: [
-              '#219653', // Hijau (Success)
-              '#F2994A', // Orange (Warning)
-              '#D32F2F'  // Merah (Danger)
-            ],
+            backgroundColor: ['#219653', '#F2994A', '#D32F2F'],
             borderWidth: 0,
-            borderRadius: 6 // Membuat ujung batang sedikit melengkung rapi
+            borderRadius: 6
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false } // Sembunyikan label kotak atas karena sudah jelas
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1 } // Skala angka meloncat per 1 unit
-            }
-          }
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
       });
 
-      // 3. Konfigurasi Grafik Lingkaran (Doughnut/Pie Chart)
       const ctxPie = document.getElementById('statusPieChart').getContext('2d');
       new Chart(ctxPie, {
         type: 'doughnut',
@@ -259,13 +307,10 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' } // Taruh legenda penjelas di bawah grafik
-          }
+          plugins: { legend: { position: 'bottom' } }
         }
       });
 
-      // Kontrol navigasi sidebar menu
       const menuToggleButton = document.getElementById('menu-toggle');
       const sidebarNavWrapper = document.querySelector('.sidebar-nav-wrapper');
       const mainWrapper = document.querySelector('.main-wrapper');
