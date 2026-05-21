@@ -24,149 +24,15 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
 ?>
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - Rental Kamera</title>
-
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
-    <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-
-    <style>
-      /* Background Modern Gradient Global */
-      body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%) !important;
-        background-attachment: fixed;
-        min-height: 100vh;
-      }
-      .main-wrapper {
-        background: transparent !important;
-      }
-
-      /* Struktur Animasi Ticker Berjalan */
-      .ticker-wrapper {
-        width: 100%;
-        overflow: hidden;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        padding: 18px 0;
-        display: flex;
-        align-items: center;
-        border: 1px solid rgba(0, 0, 0, 0.03);
-      }
-
-      .ticker-title {
-        background: #365CF5;
-        color: #ffffff;
-        padding: 18px 25px;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 13px;
-        letter-spacing: 1px;
-        position: absolute;
-        z-index: 5;
-        border-radius: 12px 0 0 12px;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: -18px;
-        height: 78px;
-      }
-
-      .ticker-content {
-        display: flex;
-        white-space: nowrap;
-        padding-left: 200px; /* Memberikan ruang agar tidak tertabrak judul */
-        animation: ticker-move 25s linear infinite;
-      }
-
-      /* Efek Pause Saat Mouse Diarahkan ke Ticker */
-      .ticker-wrapper:hover .ticker-content {
-        animation-play-state: paused;
-        cursor: pointer;
-      }
-
-      .ticker-item {
-        display: inline-flex;
-        align-items: center;
-        padding: 0 30px;
-        font-size: 16px;
-        font-weight: 600;
-        color: #24292d;
-        border-right: 2px solid #e2e8f0;
-      }
-
-      .ticker-item .brand {
-        color: #8f92a1;
-        font-size: 12px;
-        text-transform: uppercase;
-        font-weight: 700;
-        margin-right: 6px;
-        background: #f1f5f9;
-        padding: 2px 6px;
-        border-radius: 4px;
-      }
-
-      .ticker-item .badge-status {
-        font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 30px;
-        margin-left: 10px;
-        font-weight: 700;
-      }
-
-      .status-tersedia { background-color: #e6f7ed; color: #219653; }
-      .status-disewa { background-color: #fef5ec; color: #f2994a; }
-      .status-rusak { background-color: #fdebae; color: #d32f2f; }
-
-      /* Keyframes Pergerakan Ticker Horizontal */
-      @keyframes ticker-move {
-        0% {
-          transform: translate3d(0, 0, 0);
-        }
-        100% {
-          transform: translate3d(-100%, 0, 0);
-        }
-      }
-    </style>
-  </head>
+<?php include ('partials/header.php')?>
   <body>
     <div id="preloader">
       <div class="spinner"></div>
     </div>
 
-    <aside class="sidebar-nav-wrapper">
-      <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">RENTAL KAMERA</a>
-      </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item active">
-            <a href="main.php">
-              <span class="icon"><i class="lni lni-dashboard"></i></span>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="kamera.php">
-              <span class="icon"><i class="lni lni-camera"></i></span>
-              <span class="text">Data Kamera</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="logout.php">
-              <span class="icon"><i class="lni lni-exit"></i></span>
-              <span class="text">Keluar</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+  <?php
+  include('partials/sidebar.php')
+  ?>
     <div class="overlay"></div>
     <main class="main-wrapper">
       <header class="header">
@@ -223,7 +89,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
           <div class="row mb-30">
             <div class="col-12" style="position: relative;">
               <div class="ticker-title">
-                <i class="lni lni-bullhorn"></i> Live Ready
+                <i class="lni lni-bullhorn"></i>Daftar Kamera
               </div>
               <div class="ticker-wrapper">
                 <div class="ticker-content">

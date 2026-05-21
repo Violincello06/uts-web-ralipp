@@ -29,6 +29,7 @@ if (!empty($filter)) $where .= " AND status = '".mysqli_real_escape_string($conn
 $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DESC");
 ?>
 <!DOCTYPE html>
+
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -40,33 +41,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
     <link rel="stylesheet" href="assets/css/main.css" />
   </head>
   <body>
-    <aside class="sidebar-nav-wrapper">
-      <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none"> RENTAL KAMERA</a>
-      </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item">
-            <a href="main.php">
-              <span class="icon"><i class="lni lni-dashboard"></i></span>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item active">
-            <a href="kamera.php">
-              <span class="icon"><i class="lni lni-camera"></i></span>
-              <span class="text">Data Kamera</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="logout.php">
-              <span class="icon"><i class="lni lni-exit"></i></span>
-              <span class="text">Keluar</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+<?php include 'partials/sidebar.php'; ?>
     <div class="overlay"></div>
 
     <main class="main-wrapper">

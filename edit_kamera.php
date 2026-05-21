@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <aside class="sidebar-nav-wrapper">
       <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">RENTAL KAMERA</a>
+        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">SnapGear</a>
       </div>
       <nav class="sidebar-nav">
         <ul>
