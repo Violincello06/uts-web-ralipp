@@ -3,16 +3,7 @@ session_start();
 require_once 'koneksi.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 
-// Kembalikan kamera
-if (isset($_GET['kembali'])) {
-    $id = (int) $_GET['kembali'];
-    $sewa = $conn->query("SELECT id_kamera FROM penyewaan WHERE id = $id")->fetch_assoc();
-    if ($sewa) {
-        $conn->query("UPDATE penyewaan SET status='dikembalikan' WHERE id = $id");
-        $conn->query("UPDATE kamera SET stok = stok + 1, status = IF(stok+1 > 0, 'tersedia', status) WHERE id = {$sewa['id_kamera']}");
-        header("Location: penyewaan.php?notif=kembali"); exit;
-    }
-}
+// Quick-return action removed: pengembalian sekarang diproses melalui form add_pengembalian.php
 
 // Hapus penyewaan
 if (isset($_GET['hapus'])) {
@@ -181,11 +172,10 @@ $list = $conn->query("
                 <td>
                   <div class="action d-flex gap-2 flex-wrap">
                     <?php if ($row['status'] == 'dipinjam'): ?>
-                      <a href="penyewaan.php?kembali=<?= $row['id'] ?>"
+                      <a href="add_pengembalian.php?id_penyewaan=<?= $row['id'] ?>"
                          class="main-btn primary-btn-outline btn-hover btn-sm"
-                         onclick="return confirm('Konfirmasi kamera sudah dikembalikan?')"
                          style="font-size:12px;padding:4px 10px;">
-                        <i class="lni lni-checkmark"></i> Kembalikan
+                        <i class="lni lni-checkmark"></i> Proses
                       </a>
                     <?php endif; ?>
                     <a href="edit_penyewaan.php?id=<?= $row['id'] ?>"
