@@ -25,7 +25,7 @@
           <li class="nav-item">
             <a href="pengembalian.php">
               <span class="icon"><i class="lni lni-clipboard"></i></span>
-              <span class="text">Pengembalian Sewa</span>
+              <span class="text">Daftar Pengembalian</span>
             </a>
           </li>
           <li class="nav-item">

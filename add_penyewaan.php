@@ -63,7 +63,7 @@ $kamera_list = $conn->query("SELECT id, kode_kamera, nama_kamera, harga_sewa, st
 <?php include 'partials/sidebar.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/header.php'; ?>
+  <?php include 'partials/topbar.php'; ?>
 
   <section class="section">
     <div class="container-fluid">

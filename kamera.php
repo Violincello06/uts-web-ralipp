@@ -45,9 +45,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
     <div class="overlay"></div>
 
     <main class="main-wrapper">
-      <header class="header">
-        <div class="container-fluid"><button id="menu-toggle" class="main-btn primary-btn btn-hover btn-sm"><i class="lni lni-chevron-left me-2"></i>Menu</button></div>
-      </header>
+      <?php include 'partials/topbar.php'; ?>
 
       <section class="section">
         <div class="container-fluid">

@@ -50,7 +50,7 @@ $list = $conn->query("
 <?php include 'partials/sidebar.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/header.php'; ?>
+  <?php include 'partials/topbar.php'; ?>
 
   <section class="section">
     <div class="container-fluid">
