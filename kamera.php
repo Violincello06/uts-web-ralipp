@@ -26,7 +26,16 @@ $where = "WHERE 1=1";
 if (!empty($cari))   $where .= " AND (nama_kamera LIKE '%".mysqli_real_escape_string($conn,$cari)."%' OR kode_kamera LIKE '%".mysqli_real_escape_string($conn,$cari)."%' OR merk LIKE '%".mysqli_real_escape_string($conn,$cari)."%')";
 if (!empty($filter)) $where .= " AND status = '".mysqli_real_escape_string($conn,$filter)."'";
 
-$kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DESC");
+$limit = 10; // items per page
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($page - 1) * $limit;
+
+// hitung total untuk paginasi
+$resCount = $conn->query("SELECT COUNT(*) AS cnt FROM kamera $where");
+$total_rows = ($resCount && $resCount->num_rows) ? $resCount->fetch_assoc()['cnt'] : 0;
+$total_pages = max(1, (int) ceil($total_rows / $limit));
+
+$kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DESC LIMIT $offset, $limit");
 ?>
 <!DOCTYPE html>
 
@@ -101,7 +110,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                   </tr>
                 </thead>
                 <tbody>
-                  <?php if($kamera_list->num_rows > 0): $no = 1; ?>
+                  <?php if($kamera_list->num_rows > 0): $no = $offset + 1; ?>
                     <?php while($row = $kamera_list->fetch_assoc()): ?>
                     <tr>
                       <td><p><?= $no++ ?></p></td>
@@ -133,6 +142,21 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                 </tbody>
               </table>
             </div>
+              <!-- Pagination 1..10 -->
+              <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination">
+                  <?php
+                  // pertahankan parameter GET selain page
+                  $preserve = $_GET;
+                  foreach (range(1, min(10, $total_pages)) as $i) {
+                    $preserve['page'] = $i;
+                    $link = htmlspecialchars($_SERVER['PHP_SELF']) . '?' . http_build_query($preserve);
+                    $active = ($i == $page) ? ' active' : '';
+                    echo "<li class=\"page-item$active\"><a class=\"page-link\" href=\"$link\">$i</a></li>";
+                  }
+                  ?>
+                </ul>
+              </nav>
           </div>
         </div>
       </section>
