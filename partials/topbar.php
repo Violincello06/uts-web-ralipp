@@ -18,11 +18,21 @@
                 <h6 class="text-sm fw-bold text-dark"><?= htmlspecialchars($_SESSION['nama_lengkap'] ?? $_SESSION['username']) ?></h6>
                 <p class="text-xs text-muted">@<?= htmlspecialchars($_SESSION['username'] ?? '') ?></p>
               </div>
-              <div class="avatar-image bg-primary d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 40px; height: 40px; border-radius: 50%;">
-                <i class="lni lni-user text-lg"></i>
+              <div class="avatar-image bg-primary d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden;">
+                <?php if (!empty($_SESSION['avatar'])): ?>
+                  <img src="<?= htmlspecialchars($_SESSION['avatar']) ?>" alt="Avatar" style="width:40px;height:40px;object-fit:cover;" />
+                <?php else: ?>
+                  <i class="lni lni-user text-lg"></i>
+                <?php endif; ?>
               </div>
             </button>
             <ul class="dropdown-menu dropdown-menu-end p-2 shadow-sm border-0 mt-2" aria-labelledby="profile">
+              <li>
+                <a class="dropdown-item py-2" href="profil.php">
+                  <i class="lni lni-pencil-alt me-2"></i> Edit Profil
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item py-2 text-danger" href="logout.php">
                   <i class="lni lni-exit me-2"></i> Keluar Aplikasi
