@@ -5936,7 +5936,8 @@ h6,
   border: 5px solid #365CF5;
   border-top-color: transparent;
   border-radius: 50%;
-  animation: spinner 0.9s linear infinite;
+  /* Perubahan durasi animasi: angka lebih besar = lebih lambat */
+  animation: spinner 2s linear infinite;
 }
 
 @keyframes spinner {
