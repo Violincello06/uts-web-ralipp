@@ -17,6 +17,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="penyewaan.php">
+              <span class="icon"><i class="lni lni-clipboard"></i></span>
+              <span class="text">Daftar Penyewa</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="logout.php">
               <span class="icon"><i class="lni lni-exit"></i></span>
               <span class="text">Keluar</span>
