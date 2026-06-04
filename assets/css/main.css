@@ -5937,7 +5937,8 @@ h6,
   border-top-color: transparent;
   border-radius: 50%;
   /* Perubahan durasi animasi: angka lebih besar = lebih lambat */
-  animation: spinner 2s linear infinite;
+  -webkit-animation: spinner var(--spinner-duration, 2s) linear infinite;
+  animation: spinner var(--spinner-duration, 2s) linear infinite;
 }
 
 @keyframes spinner {

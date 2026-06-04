@@ -96,3 +96,14 @@
           transform: translate3d(-100%, 0, 0);
         }
       }
+
+/* Spinner duration - mudah diubah di sini tanpa mengedit file terkompilasi */
+:root {
+  --spinner-duration: 20s; /* Contoh: ubah jadi 3s untuk melambat */
+}
+
+/* Jika ingin memaksa override pada spinner secara spesifik */
+#preloader .spinner {
+  -webkit-animation: spinner var(--spinner-duration) linear infinite !important;
+  animation: spinner var(--spinner-duration) linear infinite !important;
+}
