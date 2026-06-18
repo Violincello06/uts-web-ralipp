@@ -184,9 +184,9 @@ $list = $conn->query("
                       <i class="lni lni-pencil-alt"></i> Edit
                     </a>
                     <a href="penyewaan.php?hapus=<?= $row['id'] ?>"
-                       class="main-btn danger-btn btn-hover btn-sm"
+                       class="main-btn danger-btn btn-hover btn-sm js-swal-delete"
                        style="font-size:12px;padding:4px 10px;"
-                       onclick="return confirm('Yakin hapus data ini?')">
+                       data-message="Yakin hapus data ini?">
                       <i class="lni lni-trash-can"></i> Hapus
                     </a>
                   </div>
@@ -211,5 +211,26 @@ $list = $conn->query("
 
 <script src="assets/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+  document.querySelectorAll('.js-swal-delete').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const target = event.currentTarget;
+      Swal.fire({
+        title: 'Konfirmasi Hapus',
+        text: target.dataset.message || 'Yakin hapus data ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+      }).then(result => {
+        if (result.isConfirmed) {
+          window.location.href = target.href;
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>

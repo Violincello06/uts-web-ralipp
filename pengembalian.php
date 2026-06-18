@@ -82,19 +82,9 @@ $list = $conn->query("
         </div>
       </div>
 
-      <?php if ($notif == 'sukses'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-          <i class="lni lni-checkmark-circle me-2"></i> Pengembalian berhasil dicatat & stok kamera diperbarui!
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      <?php elseif ($notif == 'hapus'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-          <i class="lni lni-checkmark-circle me-2"></i> Data pengembalian berhasil dihapus!
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      <?php endif; ?>
 
-      <div class="card-style mb-30">
+
+
 
         <!-- Toolbar -->
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
@@ -204,5 +194,26 @@ $list = $conn->query("
 
 <script src="assets/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+  // Tampilkan notifikasi popup menggunakan SweetAlert2
+  <?php if (!empty($notif)): ?>
+    setTimeout(() => {
+      const notifications = {
+        'sukses': { title: 'Berhasil Disimpan', text: 'Pengembalian berhasil dicatat & stok kamera diperbarui.' },
+        'hapus': { title: 'Berhasil Dihapus', text: 'Data pengembalian sudah terhapus.' }
+      };
+      const data = notifications['<?= $notif ?>'];
+      if (data && typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: data.title,
+          text: data.text,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#5865f2'
+        });
+      }
+    }, 500);
+  <?php endif; ?>
+</script>
 </body>
 </html>

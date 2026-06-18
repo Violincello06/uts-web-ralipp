@@ -231,11 +231,29 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
           </div>
 
           <?php if($notif == 'tambah'): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">Sukses menambahkan kamera baru!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+            <div class="alert alert-success alert-dismissible fade show alert-with-icon" role="alert">
+              <span class="alert-icon">✓</span>
+              <div>
+                <strong>Berhasil disimpan!</strong> Kamera baru telah ditambahkan.
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           <?php elseif($notif == 'edit'): ?>
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">Data kamera berhasil diperbarui!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+            <div class="alert alert-success alert-dismissible fade show alert-with-icon" role="alert">
+              <span class="alert-icon">✓</span>
+              <div>
+                <strong>Berhasil diperbarui!</strong> Data kamera sudah tersimpan.
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           <?php elseif($notif == 'hapus'): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">Kamera berhasil dihapus!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+            <div class="alert alert-success alert-dismissible fade show alert-with-icon" role="alert">
+              <span class="alert-icon">✓</span>
+              <div>
+                <strong>Berhasil dihapus!</strong> Data kamera sudah terhapus.
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           <?php endif; ?>
 
           <div class="card-style mb-30">

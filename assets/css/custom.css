@@ -97,9 +97,260 @@
         }
       }
 
+/* ===== Notifikasi Popup Overlay ===== */
+.notification-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  padding: 48px 40px;
+  max-width: 420px;
+  opacity: 0;
+  animation: notification-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  text-align: center;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #28a745;
+  font-size: 3.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #28a745;
+  box-shadow: 0 10px 35px rgba(40, 167, 69, 0.2);
+  animation: notification-icon-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+.notification-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
+  animation: notification-text-fade 0.5s ease-out 0.3s both;
+}
+
+.notification-message {
+  font-size: 1rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.5;
+  animation: notification-text-fade 0.5s ease-out 0.4s both;
+}
+
+.notification-button {
+  background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 48px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  animation: notification-button-fade 0.5s ease-out 0.5s both;
+  margin-top: 8px;
+}
+
+.notification-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  background: linear-gradient(135deg, #6f76f7 0%, #5461d9 100%);
+}
+
+.notification-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(88, 101, 242, 0.3);
+}
+
+@keyframes notification-pop-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7) rotateY(-30deg);
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.05) rotateY(5deg);
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+  }
+}
+
+@keyframes notification-icon-bounce {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes notification-text-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notification-button-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notification-pop-out {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+
+.notification-popup.hide {
+  animation: notification-pop-out 0.3s ease-in forwards;
+}
+
+/* Overlay background untuk popup */
+.notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9998;
+  opacity: 0;
+  animation: overlay-fade-in 0.4s ease-out forwards;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.notification-overlay.hide {
+  animation: overlay-fade-out 0.3s ease-in forwards;
+}
+
+@keyframes overlay-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 /* Spinner duration - mudah diubah di sini tanpa mengedit file terkompilasi */
 :root {
   --spinner-duration: 20s; /* Contoh: ubah jadi 3s untuk melambat */
+  --alert-icon-size: 44px;
+}
+
+.alert-with-icon {
+  display: grid;
+  grid-template-columns: var(--alert-icon-size) 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+}
+
+.alert-with-icon .alert-icon {
+  display: inline-flex;
+  width: var(--alert-icon-size);
+  height: var(--alert-icon-size);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #198754;
+  font-size: 1.5rem;
+  font-weight: 700;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(25, 135, 84, 0.2);
+  box-shadow: 0 0 0 rgba(25, 135, 84, 0.25);
+  animation: alert-check-pop 0.4s ease-out forwards;
+}
+
+.alert-with-icon strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+@keyframes alert-check-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(25, 135, 84, 0);
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(25, 135, 84, 0.25);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(25, 135, 84, 0);
+  }
+}
+
+/* Jika ingin alert otomatis menghilang setelah beberapa detik */
+.alert-with-icon {
+  position: relative;
+}
+
+.alert-with-icon .btn-close {
+  margin-left: auto;
+}
+
+/* Jika tombol close ada di kanan, sesuaikan padding agar tidak terlalu sempit */
+.alert-with-icon > div {
+  min-width: 0;
+}
+
+/* Jika diperlukan, tambahkan fade out saat dismiss */
+.alert-dismissible .btn-close {
+  margin-left: 0;
+}
+
+/* Jika ingin animasi tambahan pada teks */
+.alert-with-icon div {
+  animation: fade-in-text 0.35s ease-out;
+}
+
+@keyframes fade-in-text {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Jika ingin memaksa override pada spinner secara spesifik */
