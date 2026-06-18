@@ -164,6 +164,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $notif = isset($_GET['notif']) ? $_GET['notif'] : '';
 $cari   = isset($_GET['cari'])   ? trim($_GET['cari'])   : '';
 $filter = isset($_GET['status']) ? trim($_GET['status']) : '';
+$brand_filter = isset($_GET['merk']) ? trim($_GET['merk']) : '';
+
+$merk_list = [];
+$merk_result = $conn->query("SELECT DISTINCT merk FROM kamera WHERE merk <> '' ORDER BY merk ASC");
+if ($merk_result && $merk_result->num_rows) {
+    while ($row = $merk_result->fetch_assoc()) {
+        $merk_list[] = $row['merk'];
+    }
+}
 
 $last = $conn->query("SELECT kode_kamera FROM kamera ORDER BY id DESC LIMIT 1")->fetch_assoc();
 $next_kode = 'KAM-001';
@@ -179,6 +188,7 @@ if (empty($add_data['kode_kamera'])) {
 $where = "WHERE 1=1";
 if (!empty($cari))   $where .= " AND (nama_kamera LIKE '%".mysqli_real_escape_string($conn,$cari)."%' OR kode_kamera LIKE '%".mysqli_real_escape_string($conn,$cari)."%' OR merk LIKE '%".mysqli_real_escape_string($conn,$cari)."%')";
 if (!empty($filter)) $where .= " AND status = '".mysqli_real_escape_string($conn,$filter)."'";
+if (!empty($brand_filter)) $where .= " AND merk = '".mysqli_real_escape_string($conn,$brand_filter)."'";
 
 $limit = 10; // items per page
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -238,6 +248,16 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                       <option value="tersedia" <?= $filter == 'tersedia' ? 'selected' : '' ?>>Tersedia</option>
                       <option value="disewa" <?= $filter == 'disewa' ? 'selected' : '' ?>>Disewa</option>
                       <option value="rusak" <?= $filter == 'rusak' ? 'selected' : '' ?>>Rusak</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="select-style-1 mb-0">
+                  <div class="select-position">
+                    <select name="merk" onchange="this.form.submit()">
+                      <option value="">Semua Merk</option>
+                      <?php foreach ($merk_list as $merk_option): ?>
+                        <option value="<?= htmlspecialchars($merk_option) ?>" <?= $brand_filter == $merk_option ? 'selected' : '' ?>><?= htmlspecialchars($merk_option) ?></option>
+                      <?php endforeach; ?>
                     </select>
                   </div>
                 </div>

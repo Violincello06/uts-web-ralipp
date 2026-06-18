@@ -10,5 +10,6 @@
     <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/custom.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   </head>
