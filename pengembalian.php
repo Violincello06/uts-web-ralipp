@@ -7,6 +7,160 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 require_once __DIR__ . '/vendor/autoload.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['form_action'] ?? '';
+    if ($action === 'import') {
+        if (isset($_FILES['file_excel']) && $_FILES['file_excel']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['file_excel']['tmp_name'];
+            $fileName = $_FILES['file_excel']['name'];
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            $allowedExtensions = ['xlsx', 'xls', 'csv'];
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                header("Location: pengembalian.php?notif=import_error&pesan=" . urlencode("Ekstensi berkas tidak valid. Hanya berkas .xlsx, .xls, dan .csv yang diperbolehkan."));
+                exit;
+            }
+            
+            try {
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($fileTmpPath);
+                $worksheet = $spreadsheet->getActiveSheet();
+                $rows = $worksheet->toArray();
+                
+                $inserted = 0;
+                $updated = 0;
+                $skipped = 0;
+                
+                $parseDate = function($dateStr) {
+                    if (empty($dateStr)) return null;
+                    $dateStr = trim($dateStr);
+                    if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/', $dateStr, $matches)) {
+                        return $matches[3] . '-' . str_pad($matches[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                    }
+                    if (preg_match('/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/', $dateStr)) {
+                        return date('Y-m-d', strtotime($dateStr));
+                    }
+                    $time = strtotime($dateStr);
+                    return $time ? date('Y-m-d', $time) : null;
+                };
+                
+                $startIndex = 1;
+                for ($i = 0; $i < count($rows); $i++) {
+                    $row = $rows[$i];
+                    if (isset($row[1]) && (strcasecmp(trim($row[1]), 'Kode Sewa') === 0 || strcasecmp(trim($row[1]), 'kode_sewa') === 0)) {
+                        $startIndex = $i + 1;
+                        break;
+                    }
+                }
+                
+                for ($i = $startIndex; $i < count($rows); $i++) {
+                    $row = $rows[$i];
+                    if (count($row) < 7) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    $kode_sewa        = isset($row[1]) ? trim($row[1]) : '';
+                    $tgl_kembali_raw  = isset($row[5]) ? trim($row[5]) : '';
+                    $kondisi_kamera   = isset($row[6]) ? strtolower(trim($row[6])) : 'baik';
+                    $catatan          = isset($row[7]) ? trim($row[7]) : '';
+                    
+                    if (empty($kode_sewa) || empty($tgl_kembali_raw)) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    $tanggal_kembali_aktual = $parseDate($tgl_kembali_raw);
+                    if (!$tanggal_kembali_aktual) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    if (!in_array($kondisi_kamera, ['baik', 'rusak_ringan', 'rusak_berat'])) {
+                        $kondisi_kamera = 'baik';
+                    }
+                    
+                    $stmtSewa = $conn->prepare("SELECT id, id_kamera, tanggal_kembali, status FROM penyewaan WHERE kode_sewa = ?");
+                    $stmtSewa->bind_param("s", $kode_sewa);
+                    $stmtSewa->execute();
+                    $sewa = $stmtSewa->get_result()->fetch_assoc();
+                    $stmtSewa->close();
+                    
+                    if (!$sewa) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    $id_penyewaan = (int)$sewa['id'];
+                    $id_kamera = (int)$sewa['id_kamera'];
+                    
+                    $stmtCek = $conn->prepare("SELECT id, kondisi_kamera FROM pengembalian WHERE id_penyewaan = ?");
+                    $stmtCek->bind_param("i", $id_penyewaan);
+                    $stmtCek->execute();
+                    $resCek = $stmtCek->get_result()->fetch_assoc();
+                    $stmtCek->close();
+                    
+                    if ($resCek) {
+                        $existing_id = $resCek['id'];
+                        $old_kondisi = $resCek['kondisi_kamera'];
+                        
+                        $stmtUpdate = $conn->prepare("UPDATE pengembalian SET tanggal_kembali_aktual = ?, kondisi_kamera = ?, catatan = ? WHERE id = ?");
+                        $stmtUpdate->bind_param("sssi", $tanggal_kembali_aktual, $kondisi_kamera, $catatan, $existing_id);
+                        if ($stmtUpdate->execute()) {
+                            $updated++;
+                            
+                            $terlambat = $tanggal_kembali_aktual > $sewa['tanggal_kembali'];
+                            $status_baru = $terlambat ? 'terlambat' : 'dikembalikan';
+                            $conn->query("UPDATE penyewaan SET status='$status_baru' WHERE id = $id_penyewaan");
+                            
+                            if ($old_kondisi !== $kondisi_kamera) {
+                                if ($kondisi_kamera === 'rusak_berat') {
+                                    $conn->query("UPDATE kamera SET status = 'rusak' WHERE id = $id_kamera");
+                                } elseif ($old_kondisi === 'rusak_berat') {
+                                    $conn->query("UPDATE kamera SET status = 'tersedia' WHERE id = $id_kamera");
+                                }
+                            }
+                        } else {
+                            $skipped++;
+                        }
+                        $stmtUpdate->close();
+                    } else {
+                        $stmtInsert = $conn->prepare("INSERT INTO pengembalian (id_penyewaan, tanggal_kembali_aktual, kondisi_kamera, catatan) VALUES (?,?,?,?)");
+                        $stmtInsert->bind_param("isss", $id_penyewaan, $tanggal_kembali_aktual, $kondisi_kamera, $catatan);
+                        if ($stmtInsert->execute()) {
+                            $inserted++;
+                            
+                            $terlambat = $tanggal_kembali_aktual > $sewa['tanggal_kembali'];
+                            $status_baru = $terlambat ? 'terlambat' : 'dikembalikan';
+                            $conn->query("UPDATE penyewaan SET status='$status_baru' WHERE id = $id_penyewaan");
+                            
+                            if ($sewa['status'] === 'dipinjam') {
+                                $conn->query("UPDATE kamera SET stok = stok + 1, status = 'tersedia' WHERE id = $id_kamera");
+                            }
+                            
+                            if ($kondisi_kamera === 'rusak_berat') {
+                                $conn->query("UPDATE kamera SET status = 'rusak' WHERE id = $id_kamera");
+                            }
+                        } else {
+                            $skipped++;
+                        }
+                        $stmtInsert->close();
+                    }
+                }
+                
+                header("Location: pengembalian.php?notif=import_success&inserted=$inserted&updated=$updated&skipped=$skipped");
+                exit;
+            } catch (\Exception $e) {
+                header("Location: pengembalian.php?notif=import_error&pesan=" . urlencode("Gagal membaca file: " . $e->getMessage()));
+                exit;
+            }
+        } else {
+            $errorCode = $_FILES['file_excel']['error'] ?? UPLOAD_ERR_NO_FILE;
+            header("Location: pengembalian.php?notif=import_error&pesan=" . urlencode("Gagal mengunggah berkas. Kode Error: " . $errorCode));
+            exit;
+        }
+    }
+}
+
 // Hapus pengembalian
 if (isset($_GET['hapus'])) {
     $id = (int) $_GET['hapus'];
@@ -194,6 +348,9 @@ $list = $conn->query("
             <a href="pengembalian.php?export=xlsx<?= htmlspecialchars($exportQuery) ?>" class="main-btn secondary-btn btn-hover">
               <i class="lni lni-cloud-download me-1"></i> Export Excel
             </a>
+            <button type="button" class="main-btn primary-btn btn-hover" data-bs-toggle="modal" data-bs-target="#modalImport">
+              <i class="lni lni-cloud-upload me-1"></i> Import Excel
+            </button>
           </div>
         </div>
 
@@ -284,15 +441,17 @@ $list = $conn->query("
   <?php if (!empty($notif)): ?>
     setTimeout(() => {
       const notifications = {
-        'sukses': { title: 'Berhasil Disimpan', text: 'Pengembalian berhasil dicatat & stok kamera diperbarui.' },
-        'hapus': { title: 'Berhasil Dihapus', text: 'Data pengembalian sudah terhapus.' }
+        'sukses': { title: 'Berhasil Disimpan', text: 'Pengembalian berhasil dicatat & stok kamera diperbarui.', icon: 'success' },
+        'hapus': { title: 'Berhasil Dihapus', text: 'Data pengembalian sudah terhapus.', icon: 'success' },
+        'import_success': { title: 'Import Berhasil', text: 'Berhasil mengimpor data pengembalian (Ditambahkan: <?= (int)($_GET["inserted"] ?? 0) ?>, Diperbarui: <?= (int)($_GET["updated"] ?? 0) ?>, Dilewati: <?= (int)($_GET["skipped"] ?? 0) ?>).', icon: 'success' },
+        'import_error': { title: 'Import Gagal', text: '<?= htmlspecialchars($_GET["pesan"] ?? "Terjadi kesalahan saat mengimpor data.") ?>', icon: 'error' }
       };
       const data = notifications['<?= $notif ?>'];
       if (data && typeof Swal !== 'undefined') {
         Swal.fire({
           title: data.title,
           text: data.text,
-          icon: 'success',
+          icon: data.icon || 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#5865f2'
         });
@@ -300,5 +459,40 @@ $list = $conn->query("
     }, 500);
   <?php endif; ?>
 </script>
+<div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalImportLabel">Import Pengembalian dari Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="pengembalian.php" enctype="multipart/form-data">
+        <input type="hidden" name="form_action" value="import">
+        <div class="modal-body">
+          <div class="input-style-1">
+            <label>Pilih File Excel (.xlsx, .xls, .csv) <span class="text-danger">*</span></label>
+            <input type="file" name="file_excel" accept=".xlsx, .xls, .csv" required />
+          </div>
+          <div class="text-muted small mt-2">
+            <p><strong>Catatan Format:</strong></p>
+            <ul class="list-unstyled ps-3">
+              <li>- Format kolom harus sesuai dengan format export Excel:</li>
+              <li>  <code>No | Kode Sewa | Nama Penyewa | Kamera | Tgl Rencana | Tgl Aktual | Kondisi | Catatan</code></li>
+              <li>- <strong>Kode Sewa</strong> dan <strong>Tgl Aktual</strong> (Tgl Aktual Kembali) wajib diisi.</li>
+              <li>- Kode Sewa harus terdaftar dalam data penyewaan di database.</li>
+              <li>- Tanggal aktual kembali disarankan berformat: <code>dd/mm/yyyy</code> atau <code>yyyy-mm-dd</code>.</li>
+              <li>- Kondisi yang valid: <code>baik</code>, <code>rusak_ringan</code>, <code>rusak_berat</code> (jika dikosongkan/salah akan otomatis diset <code>baik</code>). Jika diset <code>rusak_berat</code>, status kamera otomatis diubah menjadi <strong>Rusak</strong>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="main-btn primary-btn btn-hover">Mulai Import</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

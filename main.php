@@ -54,8 +54,14 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
               <div class="ticker-title">
                 <i class="lni lni-bullhorn"></i>Daftar Kamera
               </div>
+              <?php
+              $num_cameras = $kamera_ticker ? $kamera_ticker->num_rows : 0;
+              // Set durasi animasi secara dinamis agar kecepatan gulir tetap stabil/konstan
+              // 1 kamera = 4 detik. Minimal durasi 15 detik.
+              $ticker_duration = max(15, $num_cameras * 4);
+              ?>
               <div class="ticker-wrapper">
-                <div class="ticker-content">
+                <div class="ticker-content" style="animation-duration: <?= $ticker_duration ?>s;">
                   <?php 
                   if ($kamera_ticker && $kamera_ticker->num_rows > 0):
                     // Kita lakukan perulangan 2 kali agar teks bersambung tanpa putus di layar luas
