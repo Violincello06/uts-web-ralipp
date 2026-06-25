@@ -163,6 +163,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $pesan_error = "Data kamera tidak valid untuk dihapus.";
         }
+    } elseif ($action === 'import') {
+        if (isset($_FILES['file_excel']) && $_FILES['file_excel']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['file_excel']['tmp_name'];
+            $fileName = $_FILES['file_excel']['name'];
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            $allowedExtensions = ['xlsx', 'xls', 'csv'];
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                header("Location: kamera.php?notif=import_error&pesan=" . urlencode("Ekstensi berkas tidak valid. Hanya berkas .xlsx, .xls, dan .csv yang diperbolehkan."));
+                exit;
+            }
+            
+            try {
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($fileTmpPath);
+                $worksheet = $spreadsheet->getActiveSheet();
+                $rows = $worksheet->toArray();
+                
+                $inserted = 0;
+                $updated = 0;
+                $skipped = 0;
+                
+                for ($i = 1; $i < count($rows); $i++) {
+                    $row = $rows[$i];
+                    
+                    if (count($row) < 3) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    $kode_kamera = isset($row[1]) ? trim($row[1]) : '';
+                    $nama_kamera = isset($row[2]) ? trim($row[2]) : '';
+                    $merk        = isset($row[3]) ? trim($row[3]) : '';
+                    $tipe        = isset($row[4]) ? trim($row[4]) : '';
+                    $harga_sewa  = isset($row[5]) ? $row[5] : 0;
+                    $stok        = isset($row[6]) ? $row[6] : 0;
+                    $status      = isset($row[7]) ? strtolower(trim($row[7])) : 'tersedia';
+                    $deskripsi   = isset($row[8]) ? trim($row[8]) : '';
+                    
+                    if (empty($kode_kamera) || empty($nama_kamera)) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    if (!is_numeric($harga_sewa)) {
+                        $harga_sewa = preg_replace('/[^\d]/', '', $harga_sewa);
+                    }
+                    $harga_sewa = (float) $harga_sewa;
+                    
+                    if (!is_numeric($stok)) {
+                        $stok = preg_replace('/[^\d]/', '', $stok);
+                    }
+                    $stok = (int) $stok;
+                    
+                    if ($harga_sewa < 0 || $stok < 0) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    if (!in_array($status, ['tersedia', 'disewa', 'rusak'])) {
+                        $status = 'tersedia';
+                    }
+                    
+                    $stmtCek = $conn->prepare("SELECT id FROM kamera WHERE kode_kamera = ?");
+                    $stmtCek->bind_param("s", $kode_kamera);
+                    $stmtCek->execute();
+                    $stmtCek->store_result();
+                    
+                    if ($stmtCek->num_rows > 0) {
+                        $stmtCek->bind_result($existing_id);
+                        $stmtCek->fetch();
+                        $stmtCek->close();
+                        
+                        $stmtUpdate = $conn->prepare("UPDATE kamera SET nama_kamera = ?, merk = ?, tipe = ?, harga_sewa = ?, stok = ?, status = ?, deskripsi = ? WHERE id = ?");
+                        $stmtUpdate->bind_param("sssdissi", $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $status, $deskripsi, $existing_id);
+                        if ($stmtUpdate->execute()) {
+                            $updated++;
+                        } else {
+                            $skipped++;
+                        }
+                        $stmtUpdate->close();
+                    } else {
+                        $stmtCek->close();
+                        
+                        $stmtInsert = $conn->prepare("INSERT INTO kamera (kode_kamera, nama_kamera, merk, tipe, harga_sewa, stok, status, deskripsi) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmtInsert->bind_param("ssssdiss", $kode_kamera, $nama_kamera, $merk, $tipe, $harga_sewa, $stok, $status, $deskripsi);
+                        if ($stmtInsert->execute()) {
+                            $inserted++;
+                        } else {
+                            $skipped++;
+                        }
+                        $stmtInsert->close();
+                    }
+                }
+                
+                header("Location: kamera.php?notif=import_success&inserted=$inserted&updated=$updated&skipped=$skipped");
+                exit;
+            } catch (\Exception $e) {
+                header("Location: kamera.php?notif=import_error&pesan=" . urlencode("Gagal membaca file: " . $e->getMessage()));
+                exit;
+            }
+        } else {
+            $errorCode = $_FILES['file_excel']['error'] ?? UPLOAD_ERR_NO_FILE;
+            header("Location: kamera.php?notif=import_error&pesan=" . urlencode("Gagal mengunggah berkas. Kode Error: " . $errorCode));
+            exit;
+        }
     }
 }
 
@@ -337,6 +442,22 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
               </div>
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+          <?php elseif($notif == 'import_success'): ?>
+            <div class="alert alert-success alert-dismissible fade show alert-with-icon" role="alert">
+              <span class="alert-icon">✓</span>
+              <div>
+                <strong>Import Berhasil!</strong> Berhasil mengimpor data kamera (Ditambahkan: <?= (int)($_GET['inserted'] ?? 0) ?>, Diperbarui: <?= (int)($_GET['updated'] ?? 0) ?>, Dilewati: <?= (int)($_GET['skipped'] ?? 0) ?>).
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <?php elseif($notif == 'import_error'): ?>
+            <div class="alert alert-danger alert-dismissible fade show alert-with-icon" role="alert">
+              <span class="alert-icon">✗</span>
+              <div>
+                <strong>Import Gagal!</strong> <?= htmlspecialchars($_GET['pesan'] ?? 'Terjadi kesalahan saat mengimpor data.') ?>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           <?php endif; ?>
 
           <div class="card-style mb-30">
@@ -370,6 +491,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
               <div class="d-flex flex-wrap gap-2">
                 <a href="kamera.php?export=word<?= htmlspecialchars($exportQuery) ?>" class="main-btn info-btn btn-hover"><i class="lni lni-cloud-download me-2"></i> Export Word</a>
                 <a href="kamera.php?export=xlsx<?= htmlspecialchars($exportQuery) ?>" class="main-btn secondary-btn btn-hover"><i class="lni lni-cloud-download me-2"></i> Export Excel</a>
+                <button type="button" class="main-btn primary-btn btn-hover" data-bs-toggle="modal" data-bs-target="#modalImport"><i class="lni lni-cloud-upload me-2"></i> Import Excel</button>
                 <button type="button" class="main-btn success-btn btn-hover" data-bs-toggle="modal" data-bs-target="#modalAdd"><i class="lni lni-plus me-2"></i> Tambah Kamera</button>
               </div>
             </div>
@@ -626,6 +748,40 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                       <div class="modal-footer">
                         <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="main-btn danger-btn btn-hover">Hapus</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="modalImportLabel">Import Kamera dari Excel</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="kamera.php" enctype="multipart/form-data">
+                      <input type="hidden" name="form_action" value="import">
+                      <div class="modal-body">
+                        <div class="input-style-1">
+                          <label>Pilih File Excel (.xlsx, .xls, .csv) <span class="text-danger">*</span></label>
+                          <input type="file" name="file_excel" accept=".xlsx, .xls, .csv" required />
+                        </div>
+                        <div class="text-muted small mt-2">
+                          <p><strong>Catatan Format:</strong></p>
+                          <ul class="list-unstyled ps-3">
+                            <li>- Format kolom harus sesuai dengan format export Excel:</li>
+                            <li>  <code>No | Kode Kamera | Nama Kamera | Merk | Tipe | Harga Sewa | Stok | Status | Deskripsi</code></li>
+                            <li>- <strong>Kode Kamera</strong> & <strong>Nama Kamera</strong> wajib diisi.</li>
+                            <li>- Jika Kode Kamera sudah ada di database, data kamera tersebut akan diperbarui (di-update).</li>
+                            <li>- Status yang valid: <code>tersedia</code>, <code>disewa</code>, <code>rusak</code> (jika dikosongkan/salah akan otomatis diset <code>tersedia</code>).</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="main-btn primary-btn btn-hover">Mulai Import</button>
                       </div>
                     </form>
                   </div>
