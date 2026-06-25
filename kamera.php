@@ -2,6 +2,11 @@
 session_start();
 require_once 'koneksi.php';
 
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+    die('Composer autoload tidak ditemukan. Jalankan "composer install" terlebih dahulu.');
+}
+require_once __DIR__ . '/vendor/autoload.php';
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -190,6 +195,84 @@ if (!empty($cari))   $where .= " AND (nama_kamera LIKE '%".mysqli_real_escape_st
 if (!empty($filter)) $where .= " AND status = '".mysqli_real_escape_string($conn,$filter)."'";
 if (!empty($brand_filter)) $where .= " AND merk = '".mysqli_real_escape_string($conn,$brand_filter)."'";
 
+$exportParams = $_GET;
+unset($exportParams['page'], $exportParams['notif'], $exportParams['export']);
+$exportQuery = '';
+if (!empty($exportParams)) {
+    $exportQuery = '&' . http_build_query($exportParams);
+}
+
+$export = isset($_GET['export']) ? $_GET['export'] : '';
+if (in_array($export, ['word', 'xlsx'], true)) {
+    $exportData = [];
+    $exportResult = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DESC");
+    if ($exportResult && $exportResult->num_rows) {
+        while ($row = $exportResult->fetch_assoc()) {
+            $exportData[] = $row;
+        }
+    }
+
+    if ($export === 'word') {
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+        $styleTable = ['borderSize' => 6, 'borderColor' => '999999', 'cellMargin' => 80];
+        $phpWord->addTableStyle('CameraTable', $styleTable);
+        $table = $section->addTable('CameraTable');
+        $table->addRow();
+        $headers = ['No', 'Kode Kamera', 'Nama Kamera', 'Merk', 'Tipe', 'Harga Sewa', 'Stok', 'Status', 'Deskripsi'];
+        foreach ($headers as $header) {
+            $table->addCell(1750)->addText($header, ['bold' => true]);
+        }
+        foreach ($exportData as $index => $row) {
+            $table->addRow();
+            $table->addCell(1750)->addText($index + 1);
+            $table->addCell(1750)->addText($row['kode_kamera']);
+            $table->addCell(1750)->addText($row['nama_kamera']);
+            $table->addCell(1750)->addText($row['merk']);
+            $table->addCell(1750)->addText($row['tipe']);
+            $table->addCell(1750)->addText('Rp ' . number_format($row['harga_sewa'], 0, ',', '.'));
+            $table->addCell(1750)->addText($row['stok'] . ' unit');
+            $table->addCell(1750)->addText($row['status']);
+            $table->addCell(1750)->addText($row['deskripsi']);
+        }
+
+        $fileName = 'data-kamera-' . date('YmdHis') . '.docx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+        $writer = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save('php://output');
+        exit;
+    }
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->fromArray(['No', 'Kode Kamera', 'Nama Kamera', 'Merk', 'Tipe', 'Harga Sewa', 'Stok', 'Status', 'Deskripsi'], null, 'A1');
+    $rowNumber = 2;
+    foreach ($exportData as $index => $row) {
+        $sheet->fromArray([
+            $index + 1,
+            $row['kode_kamera'],
+            $row['nama_kamera'],
+            $row['merk'],
+            $row['tipe'],
+            $row['harga_sewa'],
+            $row['stok'],
+            $row['status'],
+            $row['deskripsi']
+        ], null, 'A' . $rowNumber);
+        $rowNumber++;
+    }
+
+    $fileName = 'data-kamera-' . date('YmdHis') . '.xlsx';
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
 $limit = 10; // items per page
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
@@ -284,7 +367,11 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                 </div>
                 <button type="submit" class="main-btn primary-btn btn-hover"><i class="lni lni-search-alt"></i></button>
               </form>
-              <button type="button" class="main-btn success-btn btn-hover" data-bs-toggle="modal" data-bs-target="#modalAdd"><i class="lni lni-plus me-2"></i> Tambah Kamera</button>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="kamera.php?export=word<?= htmlspecialchars($exportQuery) ?>" class="main-btn info-btn btn-hover"><i class="lni lni-cloud-download me-2"></i> Export Word</a>
+                <a href="kamera.php?export=xlsx<?= htmlspecialchars($exportQuery) ?>" class="main-btn secondary-btn btn-hover"><i class="lni lni-cloud-download me-2"></i> Export Excel</a>
+                <button type="button" class="main-btn success-btn btn-hover" data-bs-toggle="modal" data-bs-target="#modalAdd"><i class="lni lni-plus me-2"></i> Tambah Kamera</button>
+              </div>
             </div>
 
             <div class="table-wrapper table-responsive">

@@ -1,6 +1,10 @@
 <?php
 session_start();
 require_once 'koneksi.php';
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+    die('Composer autoload tidak ditemukan. Jalankan "composer install" terlebih dahulu.');
+}
+require_once __DIR__ . '/vendor/autoload.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 
 // Hapus pengembalian
@@ -32,6 +36,79 @@ $filter = trim($_GET['kondisi'] ?? '');
 $where = "WHERE 1=1";
 if (!empty($cari))   $where .= " AND (p.nama_penyewa LIKE '%".mysqli_real_escape_string($conn,$cari)."%' OR p.kode_sewa LIKE '%".mysqli_real_escape_string($conn,$cari)."%')";
 if (!empty($filter)) $where .= " AND pb.kondisi_kamera = '".mysqli_real_escape_string($conn,$filter)."'";
+
+$exportParams = $_GET;
+unset($exportParams['export'], $exportParams['notif']);
+$exportQuery = !empty($exportParams) ? '&' . http_build_query($exportParams) : '';
+$export = $_GET['export'] ?? '';
+if (in_array($export, ['word', 'xlsx'], true)) {
+    $exportData = [];
+    $exportResult = $conn->query("SELECT pb.*, p.kode_sewa, p.nama_penyewa, p.tanggal_kembali AS tgl_rencana, p.total_bayar, k.nama_kamera, k.kode_kamera FROM pengembalian pb JOIN penyewaan p ON pb.id_penyewaan = p.id JOIN kamera k ON p.id_kamera = k.id $where ORDER BY pb.created_at DESC");
+    if ($exportResult && $exportResult->num_rows) {
+        while ($row = $exportResult->fetch_assoc()) {
+            $exportData[] = $row;
+        }
+    }
+
+    if ($export === 'word') {
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+        $section->addText('Laporan Data Pengembalian', ['bold' => true, 'size' => 16]);
+        $section->addTextBreak(1);
+        $phpWord->addTableStyle('PengembalianTable', ['borderSize' => 6, 'borderColor' => '999999', 'cellMargin' => 80]);
+        $table = $section->addTable('PengembalianTable');
+        $headers = ['No','Kode Sewa','Nama Penyewa','Kamera','Tgl Rencana','Tgl Aktual','Kondisi','Catatan'];
+        $table->addRow();
+        foreach ($headers as $header) {
+            $table->addCell(1750)->addText($header, ['bold' => true]);
+        }
+        foreach ($exportData as $index => $row) {
+            $table->addRow();
+            $table->addCell(1750)->addText($index + 1);
+            $table->addCell(1750)->addText($row['kode_sewa']);
+            $table->addCell(1750)->addText($row['nama_penyewa']);
+            $table->addCell(1750)->addText($row['nama_kamera'] . ' (' . $row['kode_kamera'] . ')');
+            $table->addCell(1750)->addText(date('d/m/Y', strtotime($row['tgl_rencana'])));
+            $table->addCell(1750)->addText(date('d/m/Y', strtotime($row['tanggal_kembali_aktual'])));
+            $table->addCell(1750)->addText($row['kondisi_kamera']);
+            $table->addCell(1750)->addText($row['catatan'] ?: '-');
+        }
+        $fileName = 'laporan-pengembalian-' . date('YmdHis') . '.docx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+        \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007')->save('php://output');
+        exit;
+    }
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setTitle('Pengembalian');
+    $sheet->setCellValue('A1', 'Laporan Data Pengembalian');
+    $sheet->mergeCells('A1:H1');
+    $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+    $sheet->fromArray(['No','Kode Sewa','Nama Penyewa','Kamera','Tgl Rencana','Tgl Aktual','Kondisi','Catatan'], null, 'A3');
+    $rowNumber = 4;
+    foreach ($exportData as $index => $row) {
+        $sheet->fromArray([
+            $index + 1,
+            $row['kode_sewa'],
+            $row['nama_penyewa'],
+            $row['nama_kamera'] . ' (' . $row['kode_kamera'] . ')',
+            date('d/m/Y', strtotime($row['tgl_rencana'])),
+            date('d/m/Y', strtotime($row['tanggal_kembali_aktual'])),
+            $row['kondisi_kamera'],
+            $row['catatan'] ?: '-'
+        ], null, 'A' . $rowNumber);
+        $rowNumber++;
+    }
+    $fileName = 'laporan-pengembalian-' . date('YmdHis') . '.xlsx';
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+    (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save('php://output');
+    exit;
+}
 
 $list = $conn->query("
     SELECT pb.*, p.kode_sewa, p.nama_penyewa, p.tanggal_kembali AS tgl_rencana,
@@ -110,6 +187,14 @@ $list = $conn->query("
               <a href="pengembalian.php" class="main-btn deactive-btn-2">Reset</a>
             <?php endif; ?>
           </form>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="pengembalian.php?export=word<?= htmlspecialchars($exportQuery) ?>" class="main-btn info-btn btn-hover">
+              <i class="lni lni-cloud-download me-1"></i> Export Word
+            </a>
+            <a href="pengembalian.php?export=xlsx<?= htmlspecialchars($exportQuery) ?>" class="main-btn secondary-btn btn-hover">
+              <i class="lni lni-cloud-download me-1"></i> Export Excel
+            </a>
+          </div>
         </div>
 
         <!-- Tabel -->
