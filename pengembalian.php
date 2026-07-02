@@ -432,6 +432,7 @@ $list = $conn->query("
       </div>
     </div>
   </section>
+
 </main>
 
 <script src="assets/js/bootstrap.bundle.min.js"></script>

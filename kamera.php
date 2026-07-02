@@ -791,6 +791,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
           </div>
         </div>
       </section>
+
     </main>
 
     <script src="assets/js/bootstrap.bundle.min.js"></script>
