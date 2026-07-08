@@ -481,7 +481,7 @@ if (isset($_SESSION['user_id'])) {
         <i id="lpThemeIcon" class="lni lni-night"></i>
       </button>
       <a href="login.php" class="btn-login">
-        <i class="lni lni-enter"></i> Login Admin
+        <i class="lni lni-enter"></i> Login
       </a>
     </div>
     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">

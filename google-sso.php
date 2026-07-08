@@ -135,7 +135,11 @@ if (isset($_GET['code'])) {
         $_SESSION['role']         = !empty($user['role']) ? $user['role'] : 'user';
         $_SESSION['avatar']       = $user['avatar'] ?? '';
 
-        header("Location: main.php");
+        if ($_SESSION['role'] === 'admin') {
+            header("Location: main.php");
+        } else {
+            header("Location: user_dashboard.php");
+        }
         exit;
     } else {
         // Jika user belum terdaftar, buat akun otomatis berbasis info Google
@@ -172,7 +176,11 @@ if (isset($_GET['code'])) {
             $_SESSION['role']         = $role;
             $_SESSION['avatar']       = $avatarUrl;
 
-            header("Location: main.php");
+            if ($role === 'admin') {
+                header("Location: main.php");
+            } else {
+                header("Location: user_dashboard.php");
+            }
             exit;
         } else {
             die("Gagal mendaftarkan pengguna baru via Google SSO: " . $conn->error);

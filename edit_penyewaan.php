@@ -2,6 +2,7 @@
 session_start();
 require_once 'koneksi.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
+if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: user_dashboard.php"); exit; }
 
 $id   = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if (!$id) { header("Location: penyewaan.php"); exit; }

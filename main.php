@@ -6,6 +6,10 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+if (($_SESSION['role'] ?? 'user') !== 'admin') {
+    header("Location: user_dashboard.php");
+    exit;
+}
 
 // Mengambil data user untuk header profil dinamis
 $nama_user_login  = $_SESSION['nama_lengkap'] ?? $_SESSION['username'];

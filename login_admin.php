@@ -16,22 +16,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
+        $stmt->close();
 
         if ($user && password_verify($password, $user['password'])) {
-            // Clean empty roles in database to 'user' to ensure proper routing
-            $conn->query("UPDATE users SET role = 'user' WHERE role = '' OR role IS NULL");
-            
-            $userRole = !empty($user['role']) ? $user['role'] : 'user';
+            // Jika role masih kosong, cek username - jika username mengandung 'admin' set ke admin, selainnya user
+            if (empty($user['role'])) {
+                $newRole = (stripos($user['username'], 'admin') !== false) ? 'admin' : 'user';
+                $conn->query("UPDATE users SET role = '$newRole' WHERE id = {$user['id']}");
+                $user['role'] = $newRole;
+            }
 
-            if ($userRole === 'admin') {
-                $error = 'Akses ditolak! Halaman ini khusus untuk penyewa. Silakan masuk melalui <a href="login_admin.php" class="alert-link text-decoration-none text-bold text-primary">Login Admin</a>.';
+            if ($user['role'] !== 'admin') {
+                $error = 'Akses ditolak! Akun Anda bukan administrator. Silakan gunakan <a href="login.php" class="alert-link text-decoration-none fw-bold">Login Penyewa</a>.';
             } else {
                 $_SESSION['user_id']      = $user['id'];
                 $_SESSION['username']     = $user['username'];
                 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-                $_SESSION['role']         = $userRole;
+                $_SESSION['role']         = $user['role'];
                 $_SESSION['avatar']       = $user['avatar'] ?? '';
-                header("Location: user_dashboard.php");
+                header("Location: main.php");
                 exit;
             }
         } else {
@@ -47,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Rental Kamera</title>
+    <title>Login Admin - SnapGear</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
@@ -100,20 +103,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <i id="loginThemeIcon" class="lni lni-night"></i>
     </button>
 
-
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-12 col-md-6 col-lg-5">
           <div class="card-style login-card shadow-sm p-40">
             
             <div class="text-center mb-30">
-              <h2 class="mb-10 text-bold text-primary">SnapGear</h2>
-              <p class="text-sm text-gray">Masuk ke sistem manajemen sewa</p>
+              <h2 class="mb-10 text-bold text-primary">SnapGear Admin</h2>
+              <p class="text-sm text-gray">Masuk sebagai administrator / petugas sewa</p>
             </div>
 
             <?php if (!empty($error)): ?>
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= htmlspecialchars($error) ?>
+              <?= $error ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             <?php endif; ?>
@@ -123,40 +125,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                       placeholder="Masukkan username" autocomplete="off" required />
+                       placeholder="Masukkan username admin" autocomplete="off" required />
               </div>
 
               <div class="input-style-1">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"
-                       placeholder="Masukkan password" required />
+                       placeholder="Masukkan password admin" required />
               </div>
 
               <div class="button-group d-flex justify-content-center flex-wrap mt-20">
                 <button type="submit" class="main-btn primary-btn w-100 btn-hover">
-                  <i class="lni lni-enter me-2"></i> Masuk
+                  <i class="lni lni-lock me-2"></i> Log In Admin
                 </button>
               </div>
             </form>
 
-            <div class="d-flex align-items-center my-4">
-              <hr class="flex-grow-1 border-gray">
-              <span class="mx-3 text-muted text-xs text-uppercase" style="letter-spacing: 1px;">atau</span>
-              <hr class="flex-grow-1 border-gray">
-            </div>
-
-            <div class="button-group d-flex justify-content-center flex-wrap">
-              <a href="google-sso.php" class="main-btn danger-btn-outline w-100 btn-hover d-flex align-items-center justify-content-center">
-                <i class="lni lni-google me-2"></i> Masuk dengan Google
-              </a>
-            </div>
-
             <div class="text-center mt-30 pt-20 border-top">
-              <p class="text-sm text-gray mb-2">
-                Belum punya akun? <a href="register.php" class="text-bold text-primary text-decoration-none">Daftar di sini</a>
-              </p>
               <p class="text-sm text-gray">
-                Apakah Anda Admin? <a href="login_admin.php" class="text-bold text-primary text-decoration-none">Masuk di sini</a>
+                Bukan admin? <a href="login.php" class="text-bold text-primary text-decoration-none">Login Penyewa</a>
               </p>
             </div>
 

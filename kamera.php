@@ -11,6 +11,10 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+if (($_SESSION['role'] ?? 'user') !== 'admin') {
+    header("Location: user_dashboard.php");
+    exit;
+}
 
 if (isset($_GET['hapus'])) {
     $id = (int) $_GET['hapus'];
