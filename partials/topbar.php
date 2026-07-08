@@ -12,6 +12,12 @@
       </div>
       <div class="col-lg-7 col-md-7 col-6">
         <div class="header-right d-flex align-items-center justify-content-end">
+
+          <!-- ===== THEME TOGGLE ===== -->
+          <button id="themeToggleBtn" class="theme-toggle-btn" title="Ganti Mode Tampilan" aria-label="Toggle dark mode">
+            <i class="lni lni-night" id="themeIcon"></i>
+          </button>
+
           <div class="profile-box ml-15">
             <button class="dropdown-toggle bg-transparent border-0 d-flex align-items-center" type="button" id="profile" data-bs-toggle="dropdown" aria-expanded="false">
               <div class="profile-info d-none d-md-block text-end me-3">
@@ -45,3 +51,27 @@
     </div>
   </div>
 </header>
+
+<script>
+(function() {
+  // Set icon sesuai tema saat ini
+  function syncIcon() {
+    var theme = document.documentElement.getAttribute('data-theme') || 'light';
+    var icon  = document.getElementById('themeIcon');
+    if (!icon) return;
+    icon.className = theme === 'dark' ? 'lni lni-sun' : 'lni lni-night';
+    document.getElementById('themeToggleBtn').title =
+      theme === 'dark' ? 'Mode Terang' : 'Mode Gelap';
+  }
+
+  syncIcon();
+
+  document.getElementById('themeToggleBtn').addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next    = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('sg_theme', next);
+    syncIcon();
+  });
+})();
+</script>

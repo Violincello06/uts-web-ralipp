@@ -10,4 +10,13 @@
     <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/custom.css" />
+    <link rel="stylesheet" href="assets/css/darkmode.css" />
+
+    <!-- Terapkan tema SEBELUM render untuk mencegah flash -->
+    <script>
+      (function() {
+        var saved = localStorage.getItem('sg_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+      })();
+    </script>
   </head>

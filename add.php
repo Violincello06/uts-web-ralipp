@@ -63,6 +63,7 @@ if ($last) {
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <?php include 'partials/theme_head.php'; ?>
   </head>
   <body>
     <main class="container py-5" style="max-width: 800px;">

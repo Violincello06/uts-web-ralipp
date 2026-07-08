@@ -79,34 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="spinner"></div>
     </div>
 
-    <aside class="sidebar-nav-wrapper">
-      <div class="navbar-logo">
-        <a href="main.php" class="fs-5 fw-bold text-dark text-decoration-none">SnapGear</a>
-      </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item">
-            <a href="main.php">
-              <span class="icon"><i class="lni lni-dashboard"></i></span>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item active">
-            <a href="kamera.php">
-              <span class="icon"><i class="lni lni-camera"></i></span>
-              <span class="text">Data Kamera</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="logout.php">
-              <span class="icon"><i class="lni lni-exit"></i></span>
-              <span class="text">Keluar</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <div class="overlay"></div>
+<?php include 'partials/sidebar.php'; ?>
     <main class="main-wrapper">
       <?php include 'partials/topbar.php'; ?>
       <section class="section">
@@ -214,26 +187,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       </section>
       </main>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Kontrol navigasi sidebar menu toggle responsive
-      const menuToggleButton = document.getElementById('menu-toggle');
-      const sidebarNavWrapper = document.querySelector('.sidebar-nav-wrapper');
-      const mainWrapper = document.querySelector('.main-wrapper');
-      const overlay = document.querySelector('.overlay');
-
-      menuToggleButton.addEventListener('click', () => {
-        sidebarNavWrapper.classList.toggle('active');
-        mainWrapper.classList.toggle('active');
-        overlay.classList.toggle('active');
-      });
-      overlay.addEventListener('click', () => {
-        sidebarNavWrapper.classList.remove('active');
-        mainWrapper.classList.remove('active');
-        overlay.classList.remove('active');
-      });
-      window.addEventListener('load', () => {
-        document.getElementById('preloader').style.display = 'none';
-      });
-    </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

@@ -400,10 +400,10 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <?php include 'partials/theme_head.php'; ?>
   </head>
   <body>
 <?php include 'partials/sidebar.php'; ?>
-    <div class="overlay"></div>
 
     <main class="main-wrapper">
       <?php include 'partials/topbar.php'; ?>
@@ -795,12 +795,8 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
     </main>
 
     <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
     <script>
-      document.getElementById('menu-toggle').addEventListener('click', () => {
-        document.querySelector('.sidebar-nav-wrapper').classList.toggle('active');
-        document.querySelector('.main-wrapper').classList.toggle('active');
-        document.querySelector('.overlay').classList.toggle('active');
-      });
 
       document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', () => {

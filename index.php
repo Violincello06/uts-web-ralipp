@@ -7,6 +7,13 @@ if (isset($_SESSION['user_id'])) {
 }
 ?>
 <!DOCTYPE html>
+<!-- Theme applied immediately to avoid flash -->
+<script>
+  (function() {
+    var t = localStorage.getItem('sg_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -146,6 +153,85 @@ if (isset($_SESSION['user_id'])) {
     .nav-toggle {
       display: none; background: none; border: none;
       color: #fff; font-size: 1.5rem; cursor: pointer;
+    }
+
+    /* Theme toggle button for landing page */
+    .lp-theme-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; font-size: 1rem; cursor: pointer;
+      transition: all 0.3s ease; flex-shrink: 0;
+      -webkit-text-fill-color: #fff;
+    }
+    .lp-theme-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(20deg) scale(1.1);
+    }
+
+    /* Light mode overrides for landing page */
+    [data-theme="light"] body {
+      background-color: #f0f4ff !important;
+    }
+    [data-theme="light"] .bg-canvas::before {
+      background: radial-gradient(circle, rgba(54,92,245,0.15) 0%, transparent 70%);
+    }
+    [data-theme="light"] .bg-canvas::after {
+      background: radial-gradient(circle, rgba(0,198,255,0.1) 0%, transparent 70%);
+    }
+    [data-theme="light"] .orb-mid {
+      background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+    }
+    [data-theme="light"] .stars { opacity: 0.15; }
+    [data-theme="light"] nav.navbar {
+      background: rgba(240,244,255,0.8);
+      border-bottom-color: rgba(54,92,245,0.15);
+    }
+    [data-theme="light"] nav.navbar.scrolled {
+      background: rgba(240,244,255,0.97);
+    }
+    [data-theme="light"] .nav-brand {
+      background: linear-gradient(135deg, #1e3a8a 0%, #365CF5 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    [data-theme="light"] .nav-brand .brand-icon { -webkit-text-fill-color: #fff; }
+    [data-theme="light"] .nav-links a { color: #475569; }
+    [data-theme="light"] .nav-links a:hover { color: #1e3a8a; }
+    [data-theme="light"] .lp-theme-btn {
+      background: rgba(54,92,245,0.1);
+      border-color: rgba(54,92,245,0.25);
+      color: #365CF5; -webkit-text-fill-color: #365CF5;
+    }
+    [data-theme="light"] .hero h1 { color: #0f172a; }
+    [data-theme="light"] .hero p { color: #475569; }
+    [data-theme="light"] .hero-badge {
+      background: rgba(54,92,245,0.08);
+      border-color: rgba(54,92,245,0.3); color: #365CF5;
+    }
+    [data-theme="light"] .stats-strip {
+      background: rgba(255,255,255,0.7);
+      border-color: rgba(54,92,245,0.12);
+    }
+    [data-theme="light"] .stat-item { border-right-color: rgba(54,92,245,0.12); }
+    [data-theme="light"] .stat-label { color: #64748b; }
+    [data-theme="light"] .feature-card {
+      background: rgba(255,255,255,0.85);
+      border-color: rgba(54,92,245,0.12);
+    }
+    [data-theme="light"] .feature-card h3 { color: #0f172a; }
+    [data-theme="light"] .feature-card p { color: #475569; }
+    [data-theme="light"] .how-it-works { background: rgba(255,255,255,0.4); }
+    [data-theme="light"] .step-item h4 { color: #0f172a; }
+    [data-theme="light"] .step-item p { color: #475569; }
+    [data-theme="light"] .section-header h2 { color: #0f172a; }
+    [data-theme="light"] .section-header p { color: #475569; }
+    [data-theme="light"] .scroll-hint { color: #64748b; }
+    [data-theme="light"] .scroll-hint .mouse { border-color: rgba(54,92,245,0.4); }
+    [data-theme="light"] .scroll-hint .wheel { background: rgba(54,92,245,0.5); }
+    [data-theme="light"] footer {
+      border-top-color: rgba(54,92,245,0.12);
+      color: #64748b;
     }
 
     /* ===== HERO ===== */
@@ -391,6 +477,9 @@ if (isset($_SESSION['user_id'])) {
     <div class="nav-links" id="navLinks">
       <a href="#fitur">Fitur</a>
       <a href="#cara-kerja">Cara Kerja</a>
+      <button id="lpThemeBtn" class="lp-theme-btn" title="Ganti Mode" aria-label="Toggle tema">
+        <i id="lpThemeIcon" class="lni lni-night"></i>
+      </button>
       <a href="login.php" class="btn-login">
         <i class="lni lni-enter"></i> Login Admin
       </a>
@@ -573,6 +662,28 @@ if (isset($_SESSION['user_id'])) {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.12 });
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+  // ===== THEME TOGGLE (Landing Page) =====
+  (function() {
+    function syncLpIcon() {
+      var theme = document.documentElement.getAttribute('data-theme') || 'light';
+      var icon  = document.getElementById('lpThemeIcon');
+      if (icon) icon.className = theme === 'dark' ? 'lni lni-sun' : 'lni lni-night';
+      var btn = document.getElementById('lpThemeBtn');
+      if (btn) btn.title = theme === 'dark' ? 'Mode Terang' : 'Mode Gelap';
+    }
+    syncLpIcon();
+    var btn = document.getElementById('lpThemeBtn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var cur  = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('sg_theme', next);
+        syncLpIcon();
+      });
+    }
+  })();
 </script>
 </body>
 </html>

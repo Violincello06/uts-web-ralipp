@@ -284,6 +284,7 @@ $list = $conn->query("
   <link rel="stylesheet" href="assets/css/lineicons.css"/>
   <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
+  <?php include 'partials/theme_head.php'; ?>
 </head>
 <body>
 

@@ -25,29 +25,35 @@
   const menuToggleButtonIcon = document.querySelector("#menu-toggle i");
   const overlay = document.querySelector(".overlay");
 
-  menuToggleButton.addEventListener("click", () => {
-    sidebarNavWrapper.classList.toggle("active");
-    overlay.classList.add("active");
-    mainWrapper.classList.toggle("active");
+  if (menuToggleButton) {
+    menuToggleButton.addEventListener("click", () => {
+      if (sidebarNavWrapper) sidebarNavWrapper.classList.toggle("active");
+      if (overlay) overlay.classList.add("active");
+      if (mainWrapper) mainWrapper.classList.toggle("active");
 
-    if (document.body.clientWidth > 1200) {
-      if (menuToggleButtonIcon.classList.contains("lni-chevron-left")) {
-        menuToggleButtonIcon.classList.remove("lni-chevron-left");
-        menuToggleButtonIcon.classList.add("lni-menu");
-      } else {
-        menuToggleButtonIcon.classList.remove("lni-menu");
-        menuToggleButtonIcon.classList.add("lni-chevron-left");
+      if (menuToggleButtonIcon) {
+        if (document.body.clientWidth > 1200) {
+          if (menuToggleButtonIcon.classList.contains("lni-chevron-left")) {
+            menuToggleButtonIcon.classList.remove("lni-chevron-left");
+            menuToggleButtonIcon.classList.add("lni-menu");
+          } else {
+            menuToggleButtonIcon.classList.remove("lni-menu");
+            menuToggleButtonIcon.classList.add("lni-chevron-left");
+          }
+        } else {
+          if (menuToggleButtonIcon.classList.contains("lni-chevron-left")) {
+            menuToggleButtonIcon.classList.remove("lni-chevron-left");
+            menuToggleButtonIcon.classList.add("lni-menu");
+          }
+        }
       }
-    } else {
-      if (menuToggleButtonIcon.classList.contains("lni-chevron-left")) {
-        menuToggleButtonIcon.classList.remove("lni-chevron-left");
-        menuToggleButtonIcon.classList.add("lni-menu");
-      }
-    }
-  });
-  overlay.addEventListener("click", () => {
-    sidebarNavWrapper.classList.remove("active");
-    overlay.classList.remove("active");
-    mainWrapper.classList.remove("active");
-  });
+    });
+  }
+  if (overlay) {
+    overlay.addEventListener("click", () => {
+      if (sidebarNavWrapper) sidebarNavWrapper.classList.remove("active");
+      if (overlay) overlay.classList.remove("active");
+      if (mainWrapper) mainWrapper.classList.remove("active");
+    });
+  }
 })();

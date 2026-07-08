@@ -33,7 +33,6 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
   <?php
   include('partials/sidebar.php')
   ?>
-    <div class="overlay"></div>
     <main class="main-wrapper">
       <?php include 'partials/topbar.php'; ?>
       <section class="section">
@@ -165,6 +164,7 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
     </main>
 
     <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -209,25 +209,6 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
           maintainAspectRatio: false,
           plugins: { legend: { position: 'bottom' } }
         }
-      });
-
-      const menuToggleButton = document.getElementById('menu-toggle');
-      const sidebarNavWrapper = document.querySelector('.sidebar-nav-wrapper');
-      const mainWrapper = document.querySelector('.main-wrapper');
-      const overlay = document.querySelector('.overlay');
-
-      menuToggleButton.addEventListener('click', () => {
-        sidebarNavWrapper.classList.toggle('active');
-        mainWrapper.classList.toggle('active');
-        overlay.classList.toggle('active');
-      });
-      overlay.addEventListener('click', () => {
-        sidebarNavWrapper.classList.remove('active');
-        mainWrapper.classList.remove('active');
-        overlay.classList.remove('active');
-      });
-      window.addEventListener('load', () => {
-        document.getElementById('preloader').style.display = 'none';
       });
     </script>
   </body>

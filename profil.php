@@ -151,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
   <link rel="stylesheet" href="assets/css/custom.css"/>
+  <?php include 'partials/theme_head.php'; ?>
 </head>
 <body>
 
@@ -270,5 +271,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 <script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
