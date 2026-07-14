@@ -107,8 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <div class="card-style login-card shadow-sm p-40">
             
             <div class="text-center mb-30">
-              <h2 class="mb-10 text-bold text-primary">SnapGear</h2>
-              <p class="text-sm text-gray">Masuk ke sistem manajemen sewa</p>
+              <!-- Klik logo 5x untuk akses panel admin (tersembunyi) -->
+              <h2 class="mb-10 text-bold text-primary" id="brandLogo" style="cursor:default; user-select:none;">SnapGear</h2>
+              <p class="text-sm text-gray">Portal Penyewa Kamera</p>
             </div>
 
             <?php if (!empty($error)): ?>
@@ -155,8 +156,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <p class="text-sm text-gray mb-2">
                 Belum punya akun? <a href="register.php" class="text-bold text-primary text-decoration-none">Daftar di sini</a>
               </p>
-              <p class="text-sm text-gray">
-                Apakah Anda Admin? <a href="login_admin.php" class="text-bold text-primary text-decoration-none">Masuk di sini</a>
+              <!-- Admin hint: tersembunyi, hanya terlihat saat hover -->
+              <p id="adminHint" style="
+                font-size: 0.65rem;
+                color: transparent;
+                margin-top: 24px;
+                cursor: default;
+                transition: color 0.4s ease;
+                user-select: none;
+              " title="">
+                &nbsp;
               </p>
             </div>
 
@@ -167,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script>
-      // Theme toggle for login page
+      // ===== Theme toggle =====
       (function() {
         function syncIcon() {
           var theme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -183,6 +192,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           document.documentElement.setAttribute('data-theme', next);
           localStorage.setItem('sg_theme', next);
           syncIcon();
+        });
+      })();
+
+      // ===== HIDDEN ADMIN ACCESS =====
+      (function() {
+        // Metode 1: Klik logo SnapGear 5x dalam 3 detik
+        var logo      = document.getElementById('brandLogo');
+        var clickCount = 0;
+        var clickTimer = null;
+        if (logo) {
+          logo.addEventListener('click', function() {
+            clickCount++;
+            if (clickCount === 1) {
+              clickTimer = setTimeout(function() { clickCount = 0; }, 3000);
+            }
+            if (clickCount >= 5) {
+              clearTimeout(clickTimer);
+              clickCount = 0;
+              // Tampilkan hint sebentar lalu redirect
+              var hint = document.getElementById('adminHint');
+              if (hint) {
+                hint.textContent = '🔐 Mengarahkan ke panel admin...';
+                hint.style.color = '#6366f1';
+              }
+              setTimeout(function() { window.location.href = 'login_admin.php'; }, 800);
+            }
+          });
+        }
+
+        // Metode 2: Shortcut keyboard Ctrl + Shift + A
+        document.addEventListener('keydown', function(e) {
+          if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+            e.preventDefault();
+            var hint = document.getElementById('adminHint');
+            if (hint) {
+              hint.textContent = '🔐 Mengarahkan ke panel admin...';
+              hint.style.color = '#6366f1';
+            }
+            setTimeout(function() { window.location.href = 'login_admin.php'; }, 600);
+          }
         });
       })();
     </script>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'koneksi.php';
+require_once 'helpers/send_email.php';
 
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 if (($_SESSION['role'] ?? 'user') === 'admin') { header("Location: main.php"); exit; }
@@ -86,6 +87,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
             }
             $stmtU->execute();
             $stmtU->close();
+
+            // ===== KIRIM NOTIFIKASI EMAIL KE ADMIN =====
+            sendNotifikasiSewaCust([
+                'kode_bayar'      => $bayar['kode_bayar'],
+                'nama_penyewa'    => $bayar['nama_penyewa'],
+                'nama_kamera'     => $bayar['nama_kamera'],
+                'tanggal_sewa'    => date('d M Y', strtotime($bayar['tanggal_sewa'])),
+                'tanggal_kembali' => date('d M Y', strtotime($bayar['tanggal_kembali'])),
+                'lama_sewa'       => $bayar['lama_sewa'],
+                'total_bayar'     => $bayar['total_bayar'],
+                'metode_bayar'    => $metode,
+                'catatan'         => $bayar['catatan'] ?? '',
+            ]);
+            // ===========================================
 
             $success = true;
         }

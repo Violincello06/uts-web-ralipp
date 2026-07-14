@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'koneksi.php';
+require_once 'helpers/send_email.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: user_dashboard.php"); exit; }
 
@@ -37,6 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->execute()) {
                 // Kurangi stok & update status kamera
                 $conn->query("UPDATE kamera SET stok = stok - 1, status = IF(stok - 1 <= 0, 'disewa', status) WHERE id = $id_kamera");
+
+                // Kirim notifikasi email ke admin
+                sendNotifikasiSewa([
+                    'kode_sewa'       => $kode_sewa,
+                    'nama_penyewa'    => $nama_penyewa,
+                    'nama_kamera'     => $kamera['nama_kamera'],
+                    'tanggal_sewa'    => $tanggal_sewa,
+                    'tanggal_kembali' => $tanggal_kembali,
+                    'lama_sewa'       => $lama_sewa,
+                    'total_bayar'     => $total_bayar,
+                    'catatan'         => $catatan,
+                ]);
+
                 header("Location: penyewaan.php?notif=tambah"); exit;
             } else {
                 $error = 'Gagal menyimpan data!';
