@@ -110,6 +110,27 @@ $riwayat = $conn->query("
       transform: translateY(-5px);
       box-shadow: 0 10px 25px rgba(54, 92, 245, 0.08);
     }
+    /* Gambar kamera AI */
+    .camera-img-wrap {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0f1e, #1a2236);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .camera-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .camera-card:hover .camera-img-wrap img {
+      transform: scale(1.07);
+    }
+    /* Fallback icon (jika gambar gagal load) */
     .camera-icon-wrapper {
       width: 70px;
       height: 70px;
@@ -125,6 +146,9 @@ $riwayat = $conn->query("
     [data-theme="dark"] .camera-card {
       background: #1e2536 !important;
       border-color: #2a3045 !important;
+    }
+    [data-theme="dark"] .camera-img-wrap {
+      background: linear-gradient(135deg, #0a0f1e, #1a2236) !important;
     }
     [data-theme="dark"] .camera-icon-wrapper {
       background: rgba(91, 122, 248, 0.15) !important;
@@ -277,34 +301,56 @@ $riwayat = $conn->query("
           <?php if ($katalog && $katalog->num_rows > 0): ?>
             <?php while ($cam = $katalog->fetch_assoc()): ?>
               <div class="col-12 col-md-6 col-lg-4 mb-30">
-                <div class="camera-card p-25 shadow-sm text-center">
-                  <span class="badge-tersedia float-end"><i class="lni lni-checkmark-circle me-1"></i>Tersedia</span>
-                  <div class="clearfix"></div>
-                  
-                  <div class="camera-icon-wrapper mt-15 mb-20 shadow-sm">
-                    <i class="lni lni-camera"></i>
+                <div class="camera-card shadow-sm">
+
+                  <?php
+                    // Pilih gambar berdasarkan merk kamera
+                    $merkLower = strtolower(trim($cam['merk'] ?? ''));
+                    if (str_contains($merkLower, 'canon')) {
+                        $camImg = 'assets/img/cameras/canon.png';
+                    } elseif (str_contains($merkLower, 'sony')) {
+                        $camImg = 'assets/img/cameras/sony.png';
+                    } elseif (str_contains($merkLower, 'nikon') || str_contains($merkLower, 'nika')) {
+                        $camImg = 'assets/img/cameras/nikon.png';
+                    } elseif (str_contains($merkLower, 'gopro') || str_contains($merkLower, 'go pro')) {
+                        $camImg = 'assets/img/cameras/gopro.png';
+                    } else {
+                        $camImg = 'assets/img/cameras/default.png';
+                    }
+                  ?>
+
+                  <!-- Gambar Kamera AI -->
+                  <div class="camera-img-wrap">
+                    <span class="badge-tersedia" style="position:absolute;top:12px;right:12px;z-index:2;">
+                      <i class="lni lni-checkmark-circle me-1"></i>Tersedia
+                    </span>
+                    <img src="<?= $camImg ?>" alt="<?= htmlspecialchars($cam['nama_kamera']) ?>" loading="lazy">
                   </div>
-                  
-                  <div class="brand-text text-uppercase text-xs text-gray font-weight-700 mb-5"><?= htmlspecialchars($cam['merk']) ?></div>
-                  <h4 class="camera-title mb-10 text-dark"><?= htmlspecialchars($cam['nama_kamera']) ?></h4>
-                  
-                  <div class="text-sm text-gray px-3 mb-20" style="min-height: 48px; line-height: 1.4;">
-                    <?= !empty($cam['deskripsi']) ? htmlspecialchars(mb_strimwidth($cam['deskripsi'], 0, 75, '...')) : 'Tidak ada spesifikasi tambahan.' ?>
-                  </div>
-                  
-                  <div class="border-top pt-20 d-flex justify-content-between align-items-center">
-                    <div class="text-start">
-                      <span class="text-xs text-gray block">Tarif Sewa</span>
-                      <div class="price-tag">Rp <?= number_format($cam['harga_sewa'], 0, ',', '.') ?><span class="text-xs text-gray font-weight-normal">/hari</span></div>
+
+                  <!-- Info Kamera -->
+                  <div class="p-25">
+                    <div class="brand-text text-uppercase text-xs text-gray font-weight-700 mb-5"><?= htmlspecialchars($cam['merk']) ?></div>
+                    <h4 class="camera-title mb-10 text-dark"><?= htmlspecialchars($cam['nama_kamera']) ?></h4>
+
+                    <div class="text-sm text-gray mb-20" style="min-height: 40px; line-height: 1.5;">
+                      <?= !empty($cam['deskripsi']) ? htmlspecialchars(mb_strimwidth($cam['deskripsi'], 0, 75, '...')) : 'Tidak ada spesifikasi tambahan.' ?>
                     </div>
-                    <button class="main-btn primary-btn btn-hover btn-sm btn-sewa"
-                            data-id="<?= $cam['id'] ?>"
-                            data-nama="<?= htmlspecialchars($cam['nama_kamera']) ?>"
-                            data-harga="<?= $cam['harga_sewa'] ?>"
-                            data-stok="<?= $cam['stok'] ?>">
-                      Sewa Sekarang
-                    </button>
+
+                    <div class="border-top pt-20 d-flex justify-content-between align-items-center">
+                      <div class="text-start">
+                        <span class="text-xs text-gray block">Tarif Sewa</span>
+                        <div class="price-tag">Rp <?= number_format($cam['harga_sewa'], 0, ',', '.') ?><span class="text-xs text-gray font-weight-normal">/hari</span></div>
+                      </div>
+                      <button class="main-btn primary-btn btn-hover btn-sm btn-sewa"
+                              data-id="<?= $cam['id'] ?>"
+                              data-nama="<?= htmlspecialchars($cam['nama_kamera']) ?>"
+                              data-harga="<?= $cam['harga_sewa'] ?>"
+                              data-stok="<?= $cam['stok'] ?>">
+                        Sewa Sekarang
+                      </button>
+                    </div>
                   </div>
+
                 </div>
               </div>
             <?php endwhile; ?>
