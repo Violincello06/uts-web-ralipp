@@ -10,7 +10,7 @@ if (isset($_SESSION['user_id'])) {
 <!-- Theme applied immediately to avoid flash -->
 <script>
   (function() {
-    var t = localStorage.getItem('sg_theme') || 'light';
+    var t = localStorage.getItem('sg_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', t);
   })();
 </script>
@@ -18,8 +18,8 @@ if (isset($_SESSION['user_id'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SnapGear – Sistem Manajemen Rental Kamera</title>
-  <meta name="description" content="SnapGear adalah sistem manajemen rental kamera profesional. Kelola data kamera, penyewaan, dan pengembalian dengan mudah dan efisien." />
+  <title>SnapGear – Sewa Kamera Berkualitas, Harga Terjangkau</title>
+  <meta name="description" content="SnapGear – Tempat sewa kamera terpercaya. Kualitas bagus, harga murah, dan pelayanan terbaik untuk kebutuhan foto & video Anda." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -31,6 +31,7 @@ if (isset($_SESSION['user_id'])) {
       --primary:      #365CF5;
       --primary-dark: #2344d6;
       --accent:       #00c6ff;
+      --accent2:      #a78bfa;
       --bg-dark:      #0a0f1e;
       --bg-card:      rgba(255,255,255,0.05);
       --text-light:   #e2e8f0;
@@ -91,10 +92,10 @@ if (isset($_SESSION['user_id'])) {
     }
     @keyframes drift {
       from { transform: translate(0,0) rotate(0deg); }
-      to   { transform: translate(60px,40px) rotate(15deg); }
+      to   { transform: translate(60px,40px) rotate(12deg); }
     }
     @keyframes pulse-orb {
-      0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.5; }
+      0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.5; }
       50%      { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
     }
 
@@ -105,14 +106,14 @@ if (isset($_SESSION['user_id'])) {
     nav.navbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 60px;
+      padding: 16px 60px;
       background: rgba(10,15,30,0.6);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       transition: all 0.3s ease;
     }
     nav.navbar.scrolled {
-      padding: 12px 60px;
+      padding: 10px 60px;
       background: rgba(10,15,30,0.95);
     }
     .nav-brand {
@@ -124,27 +125,36 @@ if (isset($_SESSION['user_id'])) {
       display: flex; align-items: center; gap: 10px;
     }
     .nav-brand .brand-icon {
-      width: 38px; height: 38px;
+      width: 40px; height: 40px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; color: #fff; -webkit-text-fill-color: #fff;
       flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(54,92,245,0.4);
     }
-    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
     .nav-links a {
       color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
       text-decoration: none; transition: color 0.2s;
     }
     .nav-links a:hover { color: #fff; }
+
+    /* Active / highlighted nav link */
+    .nav-links a.nav-sewa {
+      color: var(--accent); font-weight: 700;
+    }
+    .nav-links a.nav-sewa:hover { color: #fff; }
+
     .btn-login {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 28px;
+      padding: 10px 26px;
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: #fff !important;
-      border-radius: 50px; font-weight: 600; font-size: 0.9rem;
+      border-radius: 50px; font-weight: 600; font-size: 0.88rem;
       text-decoration: none; transition: all 0.3s ease;
       box-shadow: 0 4px 20px rgba(54,92,245,0.4);
+      -webkit-text-fill-color: #fff;
     }
     .btn-login:hover {
       transform: translateY(-2px);
@@ -155,134 +165,75 @@ if (isset($_SESSION['user_id'])) {
       color: #fff; font-size: 1.5rem; cursor: pointer;
     }
 
-    /* Theme toggle button for landing page */
-    .lp-theme-btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 38px; height: 38px; border-radius: 50%;
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-      color: #fff; font-size: 1rem; cursor: pointer;
-      transition: all 0.3s ease; flex-shrink: 0;
-      -webkit-text-fill-color: #fff;
-    }
-    .lp-theme-btn:hover {
-      background: rgba(255,255,255,0.2);
-      transform: rotate(20deg) scale(1.1);
-    }
-
-    /* Light mode overrides for landing page */
-    [data-theme="light"] body {
-      background-color: #f0f4ff !important;
-    }
-    [data-theme="light"] .bg-canvas::before {
-      background: radial-gradient(circle, rgba(54,92,245,0.15) 0%, transparent 70%);
-    }
-    [data-theme="light"] .bg-canvas::after {
-      background: radial-gradient(circle, rgba(0,198,255,0.1) 0%, transparent 70%);
-    }
-    [data-theme="light"] .orb-mid {
-      background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
-    }
-    [data-theme="light"] .stars { opacity: 0.15; }
-    [data-theme="light"] nav.navbar {
-      background: rgba(240,244,255,0.8);
-      border-bottom-color: rgba(54,92,245,0.15);
-    }
-    [data-theme="light"] nav.navbar.scrolled {
-      background: rgba(240,244,255,0.97);
-    }
-    [data-theme="light"] .nav-brand {
-      background: linear-gradient(135deg, #1e3a8a 0%, #365CF5 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    [data-theme="light"] .nav-brand .brand-icon { -webkit-text-fill-color: #fff; }
-    [data-theme="light"] .nav-links a { color: #475569; }
-    [data-theme="light"] .nav-links a:hover { color: #1e3a8a; }
-    [data-theme="light"] .lp-theme-btn {
-      background: rgba(54,92,245,0.1);
-      border-color: rgba(54,92,245,0.25);
-      color: #365CF5; -webkit-text-fill-color: #365CF5;
-    }
-    [data-theme="light"] .hero h1 { color: #0f172a; }
-    [data-theme="light"] .hero p { color: #475569; }
-    [data-theme="light"] .hero-badge {
-      background: rgba(54,92,245,0.08);
-      border-color: rgba(54,92,245,0.3); color: #365CF5;
-    }
-    [data-theme="light"] .stats-strip {
-      background: rgba(255,255,255,0.7);
-      border-color: rgba(54,92,245,0.12);
-    }
-    [data-theme="light"] .stat-item { border-right-color: rgba(54,92,245,0.12); }
-    [data-theme="light"] .stat-label { color: #64748b; }
-    [data-theme="light"] .feature-card {
-      background: rgba(255,255,255,0.85);
-      border-color: rgba(54,92,245,0.12);
-    }
-    [data-theme="light"] .feature-card h3 { color: #0f172a; }
-    [data-theme="light"] .feature-card p { color: #475569; }
-    [data-theme="light"] .how-it-works { background: rgba(255,255,255,0.4); }
-    [data-theme="light"] .step-item h4 { color: #0f172a; }
-    [data-theme="light"] .step-item p { color: #475569; }
-    [data-theme="light"] .section-header h2 { color: #0f172a; }
-    [data-theme="light"] .section-header p { color: #475569; }
-    [data-theme="light"] .scroll-hint { color: #64748b; }
-    [data-theme="light"] .scroll-hint .mouse { border-color: rgba(54,92,245,0.4); }
-    [data-theme="light"] .scroll-hint .wheel { background: rgba(54,92,245,0.5); }
-    [data-theme="light"] footer {
-      border-top-color: rgba(54,92,245,0.12);
-      color: #64748b;
-    }
-
     /* ===== HERO ===== */
     .hero {
       min-height: 100vh;
       display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 120px 24px 80px;
+      text-align: center; padding: 130px 24px 80px;
     }
-    .hero-content { max-width: 860px; }
+    .hero-content { max-width: 900px; }
+
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(54,92,245,0.15);
       border: 1px solid rgba(54,92,245,0.4);
-      color: #93b4ff; padding: 8px 20px; border-radius: 50px;
+      color: #93b4ff; padding: 8px 22px; border-radius: 50px;
       font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
       animation: fade-up 0.6s ease-out both;
     }
     .hero-badge .dot {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--accent); animation: blink 1.5s ease-in-out infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
     .hero h1 {
-      font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 900;
-      line-height: 1.1; margin-bottom: 24px;
+      font-size: clamp(3rem, 7.5vw, 5.5rem); font-weight: 900;
+      line-height: 1.08; margin-bottom: 12px;
       animation: fade-up 0.6s 0.1s ease-out both;
+      color: #fff;
     }
     .gradient-text {
       background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, #a78bfa 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
+    /* Tagline pills */
+    .hero-tagline {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+      margin: 20px 0 28px;
+      animation: fade-up 0.6s 0.18s ease-out both;
+    }
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(54,92,245,0.35);
+      color: #93b4ff; padding: 7px 18px; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600;
+    }
+    .tag-pill .pill-icon { color: var(--accent); }
+
     .hero p {
-      font-size: 1.15rem; color: var(--text-muted);
-      max-width: 580px; margin: 0 auto 40px;
-      animation: fade-up 0.6s 0.2s ease-out both;
+      font-size: 1.1rem; color: var(--text-muted);
+      max-width: 560px; margin: 0 auto 40px;
+      animation: fade-up 0.6s 0.25s ease-out both;
     }
     .hero-actions {
       display: flex; align-items: center; justify-content: center;
       gap: 16px; flex-wrap: wrap;
-      animation: fade-up 0.6s 0.3s ease-out both;
+      animation: fade-up 0.6s 0.35s ease-out both;
     }
     .btn-cta-primary {
       display: inline-flex; align-items: center; gap: 10px;
-      padding: 16px 40px;
+      padding: 17px 44px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       color: #fff; border-radius: 50px;
-      font-weight: 700; font-size: 1rem; text-decoration: none;
+      font-weight: 800; font-size: 1rem; text-decoration: none;
       transition: all 0.3s ease;
       box-shadow: 0 8px 32px rgba(54,92,245,0.4);
+      -webkit-text-fill-color: #fff;
     }
     .btn-cta-primary:hover {
       transform: translateY(-3px);
@@ -290,20 +241,35 @@ if (isset($_SESSION['user_id'])) {
     }
     .btn-cta-outline {
       display: inline-flex; align-items: center; gap: 10px;
-      padding: 15px 36px; background: transparent; color: #fff;
+      padding: 16px 36px; background: transparent; color: #fff;
       border: 2px solid rgba(255,255,255,0.25); border-radius: 50px;
       font-weight: 600; font-size: 1rem; text-decoration: none;
       transition: all 0.3s ease;
+      -webkit-text-fill-color: #fff;
     }
     .btn-cta-outline:hover {
       border-color: var(--accent); color: var(--accent);
       background: rgba(0,198,255,0.06); transform: translateY(-2px);
+      -webkit-text-fill-color: var(--accent);
     }
+
+    /* Trust strip */
+    .trust-strip {
+      margin-top: 56px;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 28px;
+      animation: fade-up 0.6s 0.45s ease-out both;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-muted); font-size: 0.82rem; font-weight: 500;
+    }
+    .trust-item i { color: var(--accent); font-size: 1rem; }
+
     .scroll-hint {
-      margin-top: 60px;
+      margin-top: 56px;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
       color: var(--text-muted); font-size: 0.78rem;
-      animation: fade-up 0.6s 0.5s ease-out both;
+      animation: fade-up 0.6s 0.55s ease-out both;
     }
     .scroll-hint .mouse {
       width: 22px; height: 36px;
@@ -321,13 +287,13 @@ if (isset($_SESSION['user_id'])) {
 
     /* ===== STATS ===== */
     .stats-strip {
-      padding: 40px 60px;
+      padding: 44px 60px;
       border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
       background: rgba(255,255,255,0.03);
     }
     .stats-grid {
       display: flex; align-items: center; justify-content: center;
-      flex-wrap: wrap; max-width: 900px; margin: 0 auto;
+      flex-wrap: wrap; max-width: 960px; margin: 0 auto;
     }
     .stat-item {
       flex: 1; min-width: 150px; text-align: center; padding: 20px;
@@ -335,33 +301,93 @@ if (isset($_SESSION['user_id'])) {
     }
     .stat-item:last-child { border-right: none; }
     .stat-num {
-      font-size: 2.4rem; font-weight: 900; line-height: 1;
+      font-size: 2.5rem; font-weight: 900; line-height: 1;
       background: linear-gradient(135deg, #fff, var(--accent));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
-    /* ===== FEATURES ===== */
-    .features { padding: 100px 60px; }
+    /* ===== KAMERA SECTION ===== */
+    .kamera-section { padding: 100px 60px; }
     .section-header { text-align: center; margin-bottom: 64px; }
     .section-tag {
       display: inline-block;
       background: rgba(54,92,245,0.15); border: 1px solid rgba(54,92,245,0.3);
-      color: #93b4ff; padding: 6px 16px; border-radius: 50px;
+      color: #93b4ff; padding: 6px 18px; border-radius: 50px;
       font-size: 0.78rem; font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase; margin-bottom: 16px;
     }
-    .section-header h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 16px; }
+    .section-header h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 16px; color: #fff; }
     .section-header p { font-size: 1rem; color: var(--text-muted); max-width: 480px; margin: 0 auto; }
+
+    /* Camera cards */
+    .kamera-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+    }
+    .kamera-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(54,92,245,0.2);
+      border-radius: 20px; overflow: hidden;
+      transition: all 0.35s ease; position: relative;
+    }
+    .kamera-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(54,92,245,0.55);
+      box-shadow: 0 20px 60px rgba(54,92,245,0.15);
+    }
+    .kamera-badge-popular {
+      position: absolute; top: 14px; right: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; font-size: 0.72rem; font-weight: 800;
+      padding: 4px 12px; border-radius: 50px;
+      -webkit-text-fill-color: #fff;
+    }
+    .kamera-img {
+      width: 100%; height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(54,92,245,0.12), rgba(0,198,255,0.08));
+      font-size: 5rem;
+    }
+    .kamera-info { padding: 22px 24px; }
+    .kamera-info h3 { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .kamera-info .kamera-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6; }
+    .kamera-price {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .price-tag {
+      font-size: 1.1rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .price-unit { font-size: 0.78rem; color: var(--text-muted); font-weight: 400; }
+    .btn-sewa-mini {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 50px;
+      background: rgba(54,92,245,0.15);
+      border: 1px solid rgba(54,92,245,0.4);
+      color: #93b4ff; font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; transition: all 0.25s;
+      -webkit-text-fill-color: #93b4ff;
+    }
+    .btn-sewa-mini:hover {
+      background: rgba(54,92,245,0.3); color: #fff;
+      -webkit-text-fill-color: #fff;
+    }
+
+    /* ===== FEATURES / KEUNGGULAN ===== */
+    .features { padding: 100px 60px; background: rgba(255,255,255,0.02); }
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 24px; max-width: 1100px; margin: 0 auto;
     }
     .feature-card {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 36px 32px;
+      border-radius: var(--radius); padding: 36px 30px;
       transition: all 0.3s ease; position: relative; overflow: hidden;
     }
     .feature-card::before {
@@ -372,42 +398,69 @@ if (isset($_SESSION['user_id'])) {
     .feature-card:hover { transform: translateY(-6px); border-color: rgba(54,92,245,0.4); }
     .feature-card:hover::before { opacity: 1; }
     .feature-icon {
-      width: 56px; height: 56px; border-radius: 14px;
+      width: 58px; height: 58px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.5rem; margin-bottom: 20px;
     }
-    .fi-blue   { background: rgba(54,92,245,0.2);  color: #93b4ff; }
-    .fi-cyan   { background: rgba(0,198,255,0.15);  color: #7de3ff; }
-    .fi-purple { background: rgba(139,92,246,0.2);  color: #c4b5fd; }
-    .fi-green  { background: rgba(16,185,129,0.2);  color: #6ee7b7; }
-    .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
-    .feature-card p  { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+    .fi-orange { background: rgba(54,92,245,0.2);   color: #93b4ff; }
+    .fi-yellow { background: rgba(0,198,255,0.15);   color: #7de3ff; }
+    .fi-red    { background: rgba(139,92,246,0.2);   color: #c4b5fd; }
+    .fi-green  { background: rgba(16,185,129,0.18);  color: #6ee7b7; }
+    .feature-card h3 { font-size: 1.12rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .feature-card p  { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; }
 
     /* ===== HOW IT WORKS ===== */
-    .how-it-works { padding: 100px 60px; background: rgba(255,255,255,0.02); }
+    .how-it-works { padding: 100px 60px; }
     .steps-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 32px; max-width: 1000px; margin: 0 auto;
     }
     .step-item { text-align: center; }
     .step-num {
-      width: 60px; height: 60px; border-radius: 50%;
+      width: 64px; height: 64px; border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff; font-size: 1.3rem; font-weight: 800;
+      color: #fff; font-size: 1.4rem; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 20px;
-      box-shadow: 0 8px 24px rgba(54,92,245,0.35);
+      box-shadow: 0 8px 28px rgba(54,92,245,0.35);
+      -webkit-text-fill-color: #fff;
     }
-    .step-item h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .step-item h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
     .step-item p  { font-size: 0.88rem; color: var(--text-muted); }
+
+    /* ===== TESTIMONI ===== */
+    .testimoni { padding: 100px 60px; background: rgba(255,255,255,0.02); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px; max-width: 1000px; margin: 0 auto;
+    }
+    .testi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px 28px;
+      transition: all 0.3s ease;
+    }
+    .testi-card:hover { transform: translateY(-4px); border-color: rgba(54,92,245,0.4); }
+    .testi-stars { color: var(--accent); font-size: 0.9rem; margin-bottom: 14px; }
+    .testi-text { font-size: 0.92rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 18px; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: #fff;
+      -webkit-text-fill-color: #fff; flex-shrink: 0;
+    }
+    .testi-name { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .testi-role { font-size: 0.78rem; color: var(--text-muted); }
 
     /* ===== CTA ===== */
     .cta-section { padding: 100px 60px; text-align: center; }
     .cta-card {
-      max-width: 800px; margin: 0 auto;
+      max-width: 820px; margin: 0 auto;
       background: linear-gradient(135deg, rgba(54,92,245,0.2) 0%, rgba(0,198,255,0.1) 100%);
       border: 1px solid rgba(54,92,245,0.35); border-radius: 28px;
-      padding: 72px 60px; position: relative; overflow: hidden;
+      padding: 80px 60px; position: relative; overflow: hidden;
     }
     .cta-card::before {
       content: ''; position: absolute; top: -80px; right: -80px;
@@ -415,16 +468,29 @@ if (isset($_SESSION['user_id'])) {
       background: radial-gradient(circle, rgba(0,198,255,0.15) 0%, transparent 70%);
       border-radius: 50%;
     }
-    .cta-card h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 16px; }
-    .cta-card p  { font-size: 1rem; color: var(--text-muted); margin-bottom: 36px; }
+    .cta-card h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 16px; color: #fff; }
+    .cta-card p  { font-size: 1rem; color: #a8956a; margin-bottom: 36px; }
 
     /* ===== FOOTER ===== */
     footer {
-      padding: 32px 60px; border-top: 1px solid var(--border);
-      text-align: center; color: var(--text-muted); font-size: 0.83rem;
+      padding: 36px 60px; border-top: 1px solid var(--border);
+      background: rgba(10,15,30,0.5);
     }
-    footer a { color: #93b4ff; text-decoration: none; }
-    footer a:hover { color: var(--accent); }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 20px;
+    }
+    .footer-brand {
+      font-size: 1.2rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { color: #64748b; font-size: 0.8rem; }
 
     /* ===== ANIMATIONS ===== */
     @keyframes fade-up {
@@ -439,7 +505,7 @@ if (isset($_SESSION['user_id'])) {
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      nav.navbar, nav.navbar.scrolled { padding: 16px 20px; }
+      nav.navbar, nav.navbar.scrolled { padding: 14px 20px; }
       .nav-links { display: none; }
       .nav-links.open {
         display: flex; flex-direction: column;
@@ -448,13 +514,16 @@ if (isset($_SESSION['user_id'])) {
         align-items: center; justify-content: center; gap: 28px; z-index: 99;
       }
       .nav-toggle { display: block; }
-      .features, .how-it-works, .cta-section { padding: 60px 20px; }
-      .stats-strip { padding: 30px 20px; }
+      .kamera-section, .features, .how-it-works,
+      .cta-section, .testimoni { padding: 60px 20px; }
+      .stats-strip { padding: 28px 20px; }
       .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
       .stat-item:last-child { border-bottom: none; }
       .cta-card { padding: 48px 24px; }
-      .cta-card h2 { font-size: 1.8rem; }
+      .cta-card h2 { font-size: 1.9rem; }
       footer { padding: 28px 20px; }
+      .hero-tagline { gap: 8px; }
+      .trust-strip { gap: 18px; }
     }
   </style>
 </head>
@@ -475,11 +544,11 @@ if (isset($_SESSION['user_id'])) {
       SnapGear
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="#fitur">Fitur</a>
-      <a href="#cara-kerja">Cara Kerja</a>
-      <button id="lpThemeBtn" class="lp-theme-btn" title="Ganti Mode" aria-label="Toggle tema">
-        <i id="lpThemeIcon" class="lni lni-night"></i>
-      </button>
+      <a href="#beranda">Beranda</a>
+      <a href="#kamera" class="nav-sewa">📷 Sewa Kamera</a>
+      <a href="#keunggulan">Keunggulan</a>
+      <a href="#cara-sewa">Cara Sewa</a>
+      <a href="#testimoni">Testimoni</a>
       <a href="login.php" class="btn-login">
         <i class="lni lni-enter"></i> Login
       </a>
@@ -494,29 +563,45 @@ if (isset($_SESSION['user_id'])) {
     <div class="hero-content">
       <div class="hero-badge">
         <span class="dot"></span>
-        Sistem Manajemen Rental Kamera Profesional
+        🎯 Tempat Sewa Kamera #1 Terpercaya
       </div>
       <h1>
-        Kelola Rental Kamera<br />
-        dengan <span class="gradient-text">SnapGear</span>
+        Sewa Kamera di<br />
+        <span class="gradient-text">SnapGear</span>
       </h1>
+
+      <div class="hero-tagline">
+        <span class="tag-pill"><span class="pill-icon">✅</span> Kualitas Bagus</span>
+        <span class="tag-pill"><span class="pill-icon">💰</span> Harga Murah</span>
+        <span class="tag-pill"><span class="pill-icon">🛡️</span> Terpercaya</span>
+      </div>
+
       <p>
-        Platform manajemen rental kamera all-in-one. Pantau inventaris, kelola penyewaan,
-        dan catat pengembalian kamera dengan sistem yang modern dan efisien.
+        Dapatkan kamera impian untuk foto &amp; video terbaik Anda.
+        Pilihan unit lengkap, kondisi prima, harga bersahabat, dan siap antar ke lokasi Anda.
       </p>
+
       <div class="hero-actions">
-        <a href="login.php" class="btn-cta-primary" id="ctaLogin">
-          <i class="lni lni-enter"></i>
-          Masuk ke Dashboard
+        <a href="#kamera" class="btn-cta-primary" id="ctaSewa">
+          <i class="lni lni-camera"></i>
+          Sewa Kamera Sekarang
         </a>
-        <a href="#fitur" class="btn-cta-outline">
-          <i class="lni lni-arrow-down"></i>
-          Lihat Fitur
+        <a href="login.php" class="btn-cta-outline">
+          <i class="lni lni-enter"></i>
+          Masuk / Daftar
         </a>
       </div>
+
+      <div class="trust-strip">
+        <div class="trust-item"><i class="lni lni-checkmark-circle"></i> Unit Kondisi Prima</div>
+        <div class="trust-item"><i class="lni lni-protection"></i> Aman & Bergaransi</div>
+        <div class="trust-item"><i class="lni lni-support"></i> CS 24 Jam</div>
+        <div class="trust-item"><i class="lni lni-delivery"></i> Antar Jemput</div>
+      </div>
+
       <div class="scroll-hint">
         <div class="mouse"><div class="wheel"></div></div>
-        <span>Scroll untuk lihat lebih</span>
+        <span>Scroll untuk lihat kamera</span>
       </div>
     </div>
   </section>
@@ -526,91 +611,214 @@ if (isset($_SESSION['user_id'])) {
     <div class="stats-grid">
       <div class="stat-item">
         <div class="stat-num">100+</div>
-        <div class="stat-label">Jenis Kamera</div>
+        <div class="stat-label">Unit Kamera</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">24/7</div>
-        <div class="stat-label">Sistem Online</div>
+        <div class="stat-num">500+</div>
+        <div class="stat-label">Pelanggan Puas</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">3</div>
-        <div class="stat-label">Modul Utama</div>
+        <div class="stat-num">4.9★</div>
+        <div class="stat-label">Rating Kepuasan</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">Real-time</div>
-        <div class="stat-label">Update Status</div>
+        <div class="stat-num">3Thn+</div>
+        <div class="stat-label">Pengalaman</div>
       </div>
     </div>
   </div>
 
-  <!-- FEATURES -->
-  <section class="features" id="fitur">
+  <!-- SEWA KAMERA -->
+  <section class="kamera-section" id="kamera">
     <div class="section-header animate-on-scroll">
-      <div class="section-tag">✦ Fitur Unggulan</div>
-      <h2>Semua yang Anda Butuhkan<br />dalam Satu Platform</h2>
-      <p>Dirancang khusus untuk bisnis rental kamera agar operasional lebih terorganisir dan profesional.</p>
+      <div class="section-tag">📷 Pilihan Kamera</div>
+      <h2>Kamera Pilihan Kami</h2>
+      <p>Unit terlengkap untuk segala kebutuhan: wedding, portrait, landscape, vlog, dan lainnya.</p>
+    </div>
+    <div class="kamera-grid">
+      <!-- Card 1 -->
+      <div class="kamera-card animate-on-scroll">
+        <span class="kamera-badge-popular">🔥 Terlaris</span>
+        <div class="kamera-img">📷</div>
+        <div class="kamera-info">
+          <h3>Canon EOS R50</h3>
+          <p class="kamera-desc">Mirrorless ringan, cocok untuk foto &amp; video konten kreator. Autofokus canggih, bodi kompak.</p>
+          <div class="kamera-price">
+            <div>
+              <div class="price-tag">Rp 120.000</div>
+              <div class="price-unit">/ hari</div>
+            </div>
+            <a href="login.php" class="btn-sewa-mini"><i class="lni lni-cart"></i> Sewa</a>
+          </div>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="kamera-card animate-on-scroll" style="transition-delay:0.1s">
+        <div class="kamera-img">🎥</div>
+        <div class="kamera-info">
+          <h3>Sony A7 III</h3>
+          <p class="kamera-desc">Full-frame profesional untuk foto pernikahan, portrait, dan video sinematik 4K. Kualitas premium.</p>
+          <div class="kamera-price">
+            <div>
+              <div class="price-tag">Rp 250.000</div>
+              <div class="price-unit">/ hari</div>
+            </div>
+            <a href="login.php" class="btn-sewa-mini"><i class="lni lni-cart"></i> Sewa</a>
+          </div>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="kamera-card animate-on-scroll" style="transition-delay:0.2s">
+        <span class="kamera-badge-popular">✨ Baru</span>
+        <div class="kamera-img">🔭</div>
+        <div class="kamera-info">
+          <h3>Nikon Z30</h3>
+          <p class="kamera-desc">Vlogging kamera ringan tanpa viewfinder. Layar flip-out, stabilizer canggih, cocok untuk YouTube.</p>
+          <div class="kamera-price">
+            <div>
+              <div class="price-tag">Rp 150.000</div>
+              <div class="price-unit">/ hari</div>
+            </div>
+            <a href="login.php" class="btn-sewa-mini"><i class="lni lni-cart"></i> Sewa</a>
+          </div>
+        </div>
+      </div>
+      <!-- Card 4 -->
+      <div class="kamera-card animate-on-scroll" style="transition-delay:0.3s">
+        <div class="kamera-img">🎞️</div>
+        <div class="kamera-info">
+          <h3>GoPro Hero 12</h3>
+          <p class="kamera-desc">Action camera anti air, cocok untuk petualangan, olahraga ekstrem, dan konten outdoor seru.</p>
+          <div class="kamera-price">
+            <div>
+              <div class="price-tag">Rp 80.000</div>
+              <div class="price-unit">/ hari</div>
+            </div>
+            <a href="login.php" class="btn-sewa-mini"><i class="lni lni-cart"></i> Sewa</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top: 48px;" class="animate-on-scroll">
+      <a href="login.php" class="btn-cta-primary" style="display:inline-flex;">
+        <i class="lni lni-camera"></i> Lihat Semua Koleksi Kamera
+      </a>
+    </div>
+  </section>
+
+  <!-- KEUNGGULAN -->
+  <section class="features" id="keunggulan">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag">⭐ Keunggulan Kami</div>
+      <h2>Kenapa Pilih SnapGear?</h2>
+      <p>Kami hadir untuk memastikan pengalaman sewa kamera Anda menjadi mudah, aman, dan menyenangkan.</p>
     </div>
     <div class="features-grid">
       <div class="feature-card animate-on-scroll">
-        <div class="feature-icon fi-blue"><i class="lni lni-camera"></i></div>
-        <h3>Manajemen Kamera</h3>
-        <p>Pantau seluruh inventaris kamera secara real-time. Lacak status tersedia, disewa, hingga dalam perbaikan dengan mudah.</p>
+        <div class="feature-icon fi-orange"><i class="lni lni-dollar"></i></div>
+        <h3>Harga Paling Murah</h3>
+        <p>Tarif sewa transparan tanpa biaya tersembunyi. Pilih paket harian, mingguan, atau bulanan sesuai kebutuhan Anda.</p>
       </div>
       <div class="feature-card animate-on-scroll" style="transition-delay:0.1s">
-        <div class="feature-icon fi-cyan"><i class="lni lni-clipboard"></i></div>
-        <h3>Data Penyewaan</h3>
-        <p>Catat dan kelola setiap transaksi penyewaan. Lihat riwayat lengkap siapa menyewa apa dan kapan secara terstruktur.</p>
+        <div class="feature-icon fi-yellow"><i class="lni lni-star"></i></div>
+        <h3>Kualitas Terjamin</h3>
+        <p>Setiap unit dikalibrasi dan dicek kelayakannya sebelum disewakan. Anda mendapat kamera dalam kondisi prima.</p>
       </div>
       <div class="feature-card animate-on-scroll" style="transition-delay:0.2s">
-        <div class="feature-icon fi-purple"><i class="lni lni-reload"></i></div>
-        <h3>Pengembalian Otomatis</h3>
-        <p>Proses pengembalian kamera dengan kalkulasi otomatis. Status kamera terupdate secara langsung setelah pengembalian.</p>
+        <div class="feature-icon fi-green"><i class="lni lni-protection"></i></div>
+        <h3>Terpercaya &amp; Bergaransi</h3>
+        <p>Sudah dipercaya ratusan pelanggan. Jika ada kendala teknis, kami ganti unit atau refund penuh. Tanpa drama.</p>
       </div>
       <div class="feature-card animate-on-scroll" style="transition-delay:0.3s">
-        <div class="feature-icon fi-green"><i class="lni lni-bar-chart"></i></div>
-        <h3>Dashboard Analitik</h3>
-        <p>Visualisasi data perbandingan status kamera dengan grafik interaktif. Buat keputusan bisnis berbasis data yang akurat.</p>
+        <div class="feature-icon fi-red"><i class="lni lni-delivery"></i></div>
+        <h3>Antar &amp; Jemput Gratis</h3>
+        <p>Kami mengantarkan kamera ke lokasi Anda tanpa biaya tambahan dalam kota. Hemat waktu, langsung foto!</p>
       </div>
       <div class="feature-card animate-on-scroll" style="transition-delay:0.4s">
-        <div class="feature-icon fi-blue"><i class="lni lni-users"></i></div>
-        <h3>Manajemen Pengguna</h3>
-        <p>Sistem autentikasi aman dengan role admin. Kontrol akses dan kelola profil pengguna platform rental Anda.</p>
+        <div class="feature-icon fi-orange"><i class="lni lni-support"></i></div>
+        <h3>CS Online 24 Jam</h3>
+        <p>Tim kami siap membantu kapan saja. Ada pertanyaan soal kamera, tips foto, atau kendala? Hubungi kami!</p>
       </div>
       <div class="feature-card animate-on-scroll" style="transition-delay:0.5s">
-        <div class="feature-icon fi-cyan"><i class="lni lni-files"></i></div>
-        <h3>Import &amp; Export Data</h3>
-        <p>Impor data kamera secara massal dan ekspor laporan penyewaan dengan mudah untuk kebutuhan administrasi bisnis.</p>
+        <div class="feature-icon fi-yellow"><i class="lni lni-files"></i></div>
+        <h3>Proses Cepat &amp; Mudah</h3>
+        <p>Booking online dalam hitungan menit. Pilih kamera, tentukan tanggal, konfirmasi—selesai! Tidak ribet sama sekali.</p>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section class="how-it-works" id="cara-kerja">
+  <!-- CARA SEWA -->
+  <section class="how-it-works" id="cara-sewa">
     <div class="section-header animate-on-scroll">
-      <div class="section-tag">✦ Cara Kerja</div>
-      <h2>Mulai dalam 4 Langkah Mudah</h2>
-      <p>Sistem SnapGear dirancang sesederhana mungkin agar langsung bisa digunakan tanpa pelatihan panjang.</p>
+      <div class="section-tag">✦ Cara Sewa</div>
+      <h2>Sewa Kamera dalam 4 Langkah</h2>
+      <p>Prosesnya simpel, cepat, dan bisa dilakukan dari mana saja kapan saja.</p>
     </div>
     <div class="steps-grid">
       <div class="step-item animate-on-scroll">
         <div class="step-num">1</div>
-        <h4>Login Admin</h4>
-        <p>Masuk menggunakan akun admin yang sudah terdaftar di sistem SnapGear.</p>
+        <h4>Pilih Kamera</h4>
+        <p>Browsing koleksi kamera kami dan pilih yang sesuai kebutuhan serta budget Anda.</p>
       </div>
       <div class="step-item animate-on-scroll" style="transition-delay:0.15s">
         <div class="step-num">2</div>
-        <h4>Input Data Kamera</h4>
-        <p>Tambahkan inventaris kamera beserta spesifikasi, harga sewa, dan statusnya.</p>
+        <h4>Tentukan Tanggal</h4>
+        <p>Pilih tanggal mulai dan selesai penyewaan. Harga otomatis dihitung untuk Anda.</p>
       </div>
       <div class="step-item animate-on-scroll" style="transition-delay:0.3s">
         <div class="step-num">3</div>
-        <h4>Kelola Transaksi</h4>
-        <p>Catat penyewaan dan pengembalian. Sistem otomatis memperbarui status kamera.</p>
+        <h4>Konfirmasi &amp; Bayar</h4>
+        <p>Konfirmasi pesanan dan lakukan pembayaran via transfer bank atau dompet digital.</p>
       </div>
       <div class="step-item animate-on-scroll" style="transition-delay:0.45s">
         <div class="step-num">4</div>
-        <h4>Monitor Dashboard</h4>
-        <p>Pantau semua aktivitas rental melalui dashboard analitik yang informatif.</p>
+        <h4>Terima &amp; Foto!</h4>
+        <p>Kamera diantar ke alamat Anda. Mulai berkarya dan abadikan momen terbaik!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONI -->
+  <section class="testimoni" id="testimoni">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag">💬 Testimoni</div>
+      <h2>Kata Pelanggan Kami</h2>
+      <p>Ribuan pelanggan sudah mempercayakan kebutuhan kamera mereka kepada SnapGear.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card animate-on-scroll">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Pelayanannya luar biasa! Kameranya bersih, baterai penuh, langsung siap pakai. Harganya pun sangat terjangkau. Puas banget sewa di SnapGear!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar">A</div>
+          <div>
+            <div class="testi-name">Andi Saputra</div>
+            <div class="testi-role">Fotografer Pernikahan</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card animate-on-scroll" style="transition-delay:0.1s">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Sewa GoPro untuk trip ke Lombok. Prosesnya cepat, diantar tepat waktu. Rekomendasiin banget buat temen-temen yang mau trip!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar">R</div>
+          <div>
+            <div class="testi-name">Rina Dewi</div>
+            <div class="testi-role">Travel Vlogger</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card animate-on-scroll" style="transition-delay:0.2s">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Sony A7 III-nya mantap! Foto prewed hasilnya di luar ekspektasi. CS-nya juga sabar jawab semua pertanyaan saya. 5 bintang!"</p>
+        <div class="testi-author">
+          <div class="testi-avatar">B</div>
+          <div>
+            <div class="testi-name">Bagas Wicaksono</div>
+            <div class="testi-role">Konten Kreator</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -618,19 +826,30 @@ if (isset($_SESSION['user_id'])) {
   <!-- CTA -->
   <section class="cta-section">
     <div class="cta-card animate-on-scroll">
-      <h2>Siap Mengelola Rental Kamera<br />Lebih Profesional?</h2>
-      <p>Masuk ke dashboard admin sekarang dan mulai optimalkan bisnis rental kamera Anda.</p>
-      <a href="login.php" class="btn-cta-primary" style="display:inline-flex;">
-        <i class="lni lni-enter"></i> Login ke Dashboard Admin
+      <h2>Siap Mulai Berkarya? 📸</h2>
+      <p>Sewa kamera terbaik sekarang dan abadikan setiap momen berharga dengan kualitas profesional.</p>
+      <a href="#kamera" class="btn-cta-primary" style="display:inline-flex;">
+        <i class="lni lni-camera"></i> Sewa Kamera Sekarang
       </a>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer>
-    <p>&copy; <?= date('Y') ?> <strong>SnapGear</strong> — Sistem Manajemen Rental Kamera &nbsp;|&nbsp;
-       Dibuat untuk <a href="#">UTS Web Development</a>
-    </p>
+    <div class="footer-inner">
+      <div class="footer-brand">📷 SnapGear</div>
+      <div class="footer-links">
+        <a href="#beranda">Beranda</a>
+        <a href="#kamera">Sewa Kamera</a>
+        <a href="#keunggulan">Keunggulan</a>
+        <a href="#cara-sewa">Cara Sewa</a>
+        <a href="#testimoni">Testimoni</a>
+        <a href="login.php">Login</a>
+      </div>
+      <div class="footer-copy">
+        &copy; <?= date('Y') ?> <strong>SnapGear</strong> — Kualitas Bagus, Harga Murah &amp; Terpercaya
+      </div>
+    </div>
   </footer>
 
 </div><!-- end page-wrapper -->
@@ -660,30 +879,8 @@ if (isset($_SESSION['user_id'])) {
   // Intersection observer for scroll animations
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.1 });
   document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-
-  // ===== THEME TOGGLE (Landing Page) =====
-  (function() {
-    function syncLpIcon() {
-      var theme = document.documentElement.getAttribute('data-theme') || 'light';
-      var icon  = document.getElementById('lpThemeIcon');
-      if (icon) icon.className = theme === 'dark' ? 'lni lni-sun' : 'lni lni-night';
-      var btn = document.getElementById('lpThemeBtn');
-      if (btn) btn.title = theme === 'dark' ? 'Mode Terang' : 'Mode Gelap';
-    }
-    syncLpIcon();
-    var btn = document.getElementById('lpThemeBtn');
-    if (btn) {
-      btn.addEventListener('click', function() {
-        var cur  = document.documentElement.getAttribute('data-theme') || 'light';
-        var next = cur === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('sg_theme', next);
-        syncLpIcon();
-      });
-    }
-  })();
 </script>
 </body>
 </html>
