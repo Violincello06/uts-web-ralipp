@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <?php include 'partials/theme_head.php'; ?>
   </head>
   <body>
     <div id="preloader">

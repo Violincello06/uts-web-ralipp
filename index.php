@@ -492,6 +492,56 @@ if (isset($_SESSION['user_id'])) {
     .footer-links a:hover { color: var(--accent); }
     .footer-copy { color: #64748b; font-size: 0.8rem; }
 
+    /* ===== HUBUNGI KAMI ===== */
+    .contact-section { padding: 100px 60px; position: relative; }
+    .contact-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px; max-width: 1000px; margin: 0 auto;
+    }
+    .contact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 40px 32px;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .contact-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(54,92,245,0.15);
+      border-color: rgba(54,92,245,0.3);
+    }
+    .contact-icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin-bottom: 24px;
+      color: #fff; -webkit-text-fill-color: #fff;
+      transition: all 0.3s ease;
+    }
+    .contact-card:hover .contact-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    .wa-icon { background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 6px 20px rgba(37,211,102,0.3); }
+    .ig-icon { background: linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7); box-shadow: 0 6px 20px rgba(238,42,123,0.3); }
+    .github-icon { background: linear-gradient(135deg, #24292e, #4a5568); box-shadow: 0 6px 20px rgba(36,41,46,0.3); }
+    
+    .contact-card h3 { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .contact-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
+    .contact-btn {
+      font-size: 0.88rem; font-weight: 600; padding: 10px 22px; border-radius: 50px;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s ease;
+    }
+    .btn-wa { background: rgba(37,211,102,0.1); color: #25D366; border: 1px solid rgba(37,211,102,0.25); }
+    .btn-ig { background: rgba(238,42,123,0.1); color: #ee2a7b; border: 1px solid rgba(238,42,123,0.25); }
+    .btn-github { background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.15); }
+    
+    .contact-card:hover .btn-wa { background: #25D366; color: #fff; border-color: #25D366; -webkit-text-fill-color: #fff; }
+    .contact-card:hover .btn-ig { background: linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7); color: #fff; border-color: transparent; -webkit-text-fill-color: #fff; }
+    .contact-card:hover .btn-github { background: #fff; color: #0a0f1e; border-color: #fff; -webkit-text-fill-color: #0a0f1e; }
+
     /* ===== ANIMATIONS ===== */
     @keyframes fade-up {
       from { opacity: 0; transform: translateY(24px); }
@@ -515,7 +565,7 @@ if (isset($_SESSION['user_id'])) {
       }
       .nav-toggle { display: block; }
       .kamera-section, .features, .how-it-works,
-      .cta-section, .testimoni { padding: 60px 20px; }
+      .cta-section, .testimoni, .contact-section { padding: 60px 20px; }
       .stats-strip { padding: 28px 20px; }
       .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
       .stat-item:last-child { border-bottom: none; }
@@ -549,6 +599,7 @@ if (isset($_SESSION['user_id'])) {
       <a href="#keunggulan">Keunggulan</a>
       <a href="#cara-sewa">Cara Sewa</a>
       <a href="#testimoni">Testimoni</a>
+      <a href="#kontak">Hubungi Kami</a>
       <a href="login.php" class="btn-login">
         <i class="lni lni-enter"></i> Login
       </a>
@@ -820,6 +871,39 @@ if (isset($_SESSION['user_id'])) {
           </div>
         </div>
       </div>
+  </section>
+
+  <!-- HUBUNGI KAMI -->
+  <section class="contact-section" id="kontak">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag">✦ Kontak Kami</div>
+      <h2>Ada Pertanyaan? Hubungi Kami</h2>
+      <p>Tim kami siap melayani Anda 24 jam sehari. Silakan pilih platform yang paling nyaman bagi Anda.</p>
+    </div>
+    <div class="contact-grid">
+      <!-- WhatsApp Card -->
+      <a href="https://wa.me/6282125259423" target="_blank" class="contact-card animate-on-scroll">
+        <div class="contact-icon wa-icon"><i class="lni lni-whatsapp"></i></div>
+        <h3>WhatsApp Chat</h3>
+        <p>Hubungi admin untuk sewa cepat, negosiasi harga, atau menanyakan ketersediaan unit kamera secara real-time.</p>
+        <span class="contact-btn btn-wa">Hubungi via WA <i class="lni lni-arrow-right"></i></span>
+      </a>
+
+      <!-- Instagram Card -->
+      <a href="https://instagram.com/ollecniloiv" target="_blank" class="contact-card animate-on-scroll" style="transition-delay:0.1s">
+        <div class="contact-icon ig-icon"><i class="lni lni-instagram"></i></div>
+        <h3>Instagram</h3>
+        <p>Ikuti akun Instagram kami untuk melihat galeri foto hasil sewa, promo bulanan, serta tips fotografi terbaru.</p>
+        <span class="contact-btn btn-ig">Ikuti @ollecniloiv <i class="lni lni-arrow-right"></i></span>
+      </a>
+
+      <!-- GitHub Card -->
+      <a href="https://github.com/Violincello06" target="_blank" class="contact-card animate-on-scroll" style="transition-delay:0.2s">
+        <div class="contact-icon github-icon"><i class="lni lni-github"></i></div>
+        <h3>GitHub Profile</h3>
+        <p>Mau lihat programer pro ga dek</p>
+        <span class="contact-btn btn-github">Kunjungi GitHub <i class="lni lni-arrow-right"></i></span>
+      </a>
     </div>
   </section>
 
@@ -844,6 +928,7 @@ if (isset($_SESSION['user_id'])) {
         <a href="#keunggulan">Keunggulan</a>
         <a href="#cara-sewa">Cara Sewa</a>
         <a href="#testimoni">Testimoni</a>
+        <a href="#kontak">Kontak</a>
         <a href="login.php">Login</a>
       </div>
       <div class="footer-copy">

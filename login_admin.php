@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/custom.css" />
     <link rel="stylesheet" href="assets/css/darkmode.css" />
     <style>
       /* Login page dark mode */
@@ -96,7 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       [data-theme="dark"] .login-theme-btn:hover { background: rgba(255,220,50,0.2); }
     </style>
   </head>
-  <body class="login-page bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+  <body class="login-page d-flex align-items-center justify-content-center" style="min-height: 100vh; position: relative;">
+    
+    <!-- Animated Background -->
+    <div class="bg-canvas">
+      <div class="stars"></div>
+      <div class="orb-mid"></div>
+    </div>
 
     <!-- Theme toggle button -->
     <button id="loginThemeBtn" class="login-theme-btn" title="Ganti Mode" aria-label="Toggle tema">

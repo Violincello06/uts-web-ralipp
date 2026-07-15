@@ -19,4 +19,15 @@
         document.documentElement.setAttribute('data-theme', saved);
       })();
     </script>
+    <!-- Dynamic cosmic background insertion -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        if (!document.querySelector('.bg-canvas')) {
+          var bg = document.createElement('div');
+          bg.className = 'bg-canvas';
+          bg.innerHTML = '<div class="stars"></div><div class="orb-mid"></div>';
+          document.body.insertBefore(bg, document.body.firstChild);
+        }
+      });
+    </script>
   </head>

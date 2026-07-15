@@ -56,6 +56,7 @@ $kamera_list = $conn->query("SELECT id, kode_kamera, nama_kamera, harga_sewa FRO
   <link rel="stylesheet" href="assets/css/lineicons.css"/>
   <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
+  <?php include 'partials/theme_head.php'; ?>
 </head>
 <body>
 

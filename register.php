@@ -52,11 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Daftar Akun - SnapGear</title>
+    <!-- Theme anti-flash -->
+    <script>(function(){ var t=localStorage.getItem('sg_theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/custom.css" />
+    <link rel="stylesheet" href="assets/css/darkmode.css" />
   </head>
-  <body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+  <body class="login-page d-flex align-items-center justify-content-center" style="min-height: 100vh; position: relative;">
+    
+    <!-- Animated Background -->
+    <div class="bg-canvas">
+      <div class="stars"></div>
+      <div class="orb-mid"></div>
+    </div>
 
     <div class="container py-5">
       <div class="row justify-content-center">

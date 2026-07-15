@@ -1,12 +1,75 @@
-
-      /* Background Modern Gradient Global */
+      /* Background Modern Gradient Global & Cosmic Background */
       body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4ecf7 100%) !important;
+        background-color: #f3f6fc !important;
+        background-image: none !important;
         background-attachment: fixed;
         min-height: 100vh;
+        position: relative;
       }
       .main-wrapper {
         background: transparent !important;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ===== ANIMATED BACKGROUND (Light Mode Default) ===== */
+      .bg-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .bg-canvas::before {
+        content: '';
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(54,92,245,0.08) 0%, transparent 70%);
+        top: -200px;
+        left: -200px;
+        animation: drift 18s ease-in-out infinite alternate;
+      }
+      .bg-canvas::after {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0,198,255,0.06) 0%, transparent 70%);
+        bottom: -100px;
+        right: -100px;
+        animation: drift 14s ease-in-out infinite alternate-reverse;
+      }
+      .orb-mid {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        animation: pulse-orb 8s ease-in-out infinite;
+      }
+      .stars {
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(1.5px 1.5px at 10% 15%, rgba(54,92,245,0.15) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 30% 60%, rgba(54,92,245,0.1) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 55% 25%, rgba(54,92,245,0.12) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 75% 80%, rgba(54,92,245,0.08) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 90% 10%, rgba(54,92,245,0.15) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 20% 90%, rgba(54,92,245,0.1) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 65% 50%, rgba(54,92,245,0.08) 0%, transparent 100%),
+          radial-gradient(1.5px 1.5px at 45% 75%, rgba(54,92,245,0.12) 0%, transparent 100%);
+      }
+      @keyframes drift {
+        from { transform: translate(0,0) rotate(0deg); }
+        to   { transform: translate(60px,40px) rotate(12deg); }
+      }
+      @keyframes pulse-orb {
+        0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.5; }
+        50%      { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
       }
 
       /* Struktur Animasi Ticker Berjalan */
