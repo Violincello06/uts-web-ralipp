@@ -119,6 +119,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               </div>
             <?php endif; ?>
 
+            <?php if (isset($_GET['reset']) && $_GET['reset'] === 'success'): ?>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Password Anda berhasil diperbarui! Silakan masuk menggunakan password baru.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <?php endif; ?>
+
             <form method="POST" action="">
               <div class="input-style-1">
                 <label for="username">Username</label>
@@ -128,7 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               </div>
 
               <div class="input-style-1">
-                <label for="password">Password</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label for="password" class="mb-0">Password</label>
+                  <a href="lupa_password.php" class="text-xs text-primary text-decoration-none">Lupa Password?</a>
+                </div>
                 <input type="password" id="password" name="password"
                        placeholder="Masukkan password" required />
               </div>

@@ -44,10 +44,15 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
           
           <div class="title-wrapper pt-30 mb-20">
             <div class="row align-items-center">
-              <div class="col-md-6">
+              <div class="col-md-6 col-sm-6">
                 <div class="title">
                   <h2>Dashboard Analisis</h2>
                 </div>
+              </div>
+              <div class="col-md-6 col-sm-6 text-sm-end">
+                <a href="export_laporan_keseluruhan.php" class="main-btn primary-btn btn-hover">
+                  <i class="lni lni-cloud-download me-2"></i> Ekstrak Laporan Keseluruhan
+                </a>
               </div>
             </div>
           </div>

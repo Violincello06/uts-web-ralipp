@@ -169,6 +169,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
     [data-theme="dark"] .total-row td { color: #5b7af8 !important; }
     .success-wrap { text-align: center; padding: 40px 20px; }
     .success-icon { font-size: 4rem; color: #22c55e; margin-bottom: 20px; }
+    .qris-container {
+      background: #f8f9ff;
+      border: 1px solid #e0e7ff;
+    }
+    [data-theme="dark"] .qris-container {
+      background: #0f1117 !important;
+      border-color: #2a3045 !important;
+    }
+    .sub-btn-tab {
+      background: transparent;
+      border: 1px solid #365CF5;
+      color: #365CF5;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 6px 18px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .sub-btn-tab.active {
+      background: #365CF5;
+      color: #fff;
+    }
+    [data-theme="dark"] .sub-btn-tab {
+      border-color: #5b7af8;
+      color: #5b7af8;
+    }
+    [data-theme="dark"] .sub-btn-tab.active {
+      background: #5b7af8;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -263,8 +294,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
                   <div class="col-6">
                     <label class="method-card d-flex flex-column align-items-center" id="card-transfer" onclick="selectMetode('transfer')">
                       <i class="lni lni-credit-cards" style="font-size:2.2rem;color:#365CF5;margin-bottom:10px;"></i>
-                      <span class="fw-bold mb-5">Transfer Bank</span>
-                      <span class="text-xs text-gray text-center">Upload bukti transfer ke rekening kami</span>
+                      <span class="fw-bold mb-5">Transfer & QRIS</span>
+                      <span class="text-xs text-gray text-center">Upload bukti transfer atau scan QRIS</span>
                       <input type="radio" name="metode_bayar" value="transfer" id="radio_transfer" class="d-none" required>
                     </label>
                   </div>
@@ -281,26 +312,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
                 <!-- Konten Transfer -->
                 <div id="section-transfer" style="display:none;">
                   <div class="mb-20">
-                    <h6 class="text-sm text-medium mb-15"><span class="step-badge">1</span> Rekening Tujuan Transfer</h6>
-                    <?php foreach ($bank_info as $b): ?>
-                      <div class="bank-row d-flex justify-content-between align-items-center">
-                        <div>
-                          <span class="badge bg-primary me-2"><?= $b['bank'] ?></span>
-                          <span class="fw-bold text-sm"><?= $b['rekening'] ?></span>
+                    <div class="d-flex gap-2 mb-20">
+                      <button type="button" class="sub-btn-tab active" id="btn-sub-rekening" onclick="toggleSubMetode('rekening')">
+                        <i class="lni lni-credit-cards me-1"></i> Transfer Bank
+                      </button>
+                      <button type="button" class="sub-btn-tab" id="btn-sub-qris" onclick="toggleSubMetode('qris')">
+                        <i class="lni lni-empty-file me-1"></i> QRIS / QR Code
+                      </button>
+                    </div>
+
+                    <!-- Sub Section: Rekening Bank -->
+                    <div id="sub-section-rekening">
+                      <h6 class="text-sm text-medium mb-15"><span class="step-badge">1</span> Rekening Tujuan Transfer</h6>
+                      <?php foreach ($bank_info as $b): ?>
+                        <div class="bank-row d-flex justify-content-between align-items-center">
+                          <div>
+                            <span class="badge bg-primary me-2"><?= $b['bank'] ?></span>
+                            <span class="fw-bold text-sm"><?= $b['rekening'] ?></span>
+                          </div>
+                          <span class="text-xs text-gray"><?= htmlspecialchars($b['atas_nama']) ?></span>
                         </div>
-                        <span class="text-xs text-gray"><?= htmlspecialchars($b['atas_nama']) ?></span>
+                      <?php endforeach; ?>
+                    </div>
+
+                    <!-- Sub Section: QRIS -->
+                    <div id="sub-section-qris" style="display:none;">
+                      <h6 class="text-sm text-medium mb-15"><span class="step-badge">1</span> Scan QR Code Pembayaran (QRIS)</h6>
+                      <div class="card p-3 text-center border-0 qris-container" style="border-radius:12px;">
+                        <div class="qris-header mb-10">
+                          <span class="fw-bold text-sm text-primary">QRIS NATIONAL</span>
+                          <div class="text-xs text-gray">Cellopedia, Gaming</div>
+                        </div>
+                        <div class="qr-img-wrapper mb-3" style="background:#fff; padding:15px; display:inline-block; margin:0 auto; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                          <img src="assets/images/qris_code.png" alt="QRIS QR Code" style="width:180px; height:180px;">
+                        </div>
+                        <div class="text-xs text-gray">
+                          Pindai kode QR di atas menggunakan aplikasi dompet digital (GoPay, OVO, Dana, LinkAja, ShopeePay) atau Mobile Banking Anda.
+                        </div>
                       </div>
-                    <?php endforeach; ?>
-                    <div class="p-10 rounded mt-10" style="background:#fff3cd;border:1px solid #ffc107;">
+                    </div>
+
+                    <div class="p-10 rounded mt-15" style="background:#fff3cd;border:1px solid #ffc107;">
                       <i class="lni lni-warning text-warning me-1"></i>
-                      <span class="text-xs">Transfer tepat <strong>Rp <?= number_format($bayar['total_bayar'], 0, ',', '.') ?></strong> sesuai total di atas.</span>
+                      <span class="text-xs">Transfer/Bayar tepat <strong>Rp <?= number_format($bayar['total_bayar'], 0, ',', '.') ?></strong> sesuai total di atas.</span>
                     </div>
                   </div>
 
                   <div class="mb-20">
-                    <h6 class="text-sm text-medium mb-10"><span class="step-badge">2</span> Upload Bukti Transfer</h6>
+                    <h6 class="text-sm text-medium mb-10"><span class="step-badge">2</span> Upload Bukti Transfer / Pembayaran</h6>
                     <div class="input-style-1">
-                      <label for="bukti_transfer">Pilih File Bukti Transfer <span class="text-danger">*</span></label>
+                      <label for="bukti_transfer">Pilih File Bukti Pembayaran <span class="text-danger">*</span></label>
                       <input type="file" name="bukti_transfer" id="bukti_transfer" accept=".jpg,.jpeg,.png,.pdf"
                              onchange="previewBukti(this)"/>
                       <p class="text-xs text-gray mt-5">Format: JPG, PNG, atau PDF. Maks. 3MB.</p>
@@ -360,6 +421,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
     document.getElementById('radio_' + metode).checked = true;
     document.getElementById('section-' + metode).style.display = 'block';
     document.getElementById('btnKonfirmasi').disabled = false;
+  }
+
+  function toggleSubMetode(sub) {
+    const btnRek = document.getElementById('btn-sub-rekening');
+    const btnQris = document.getElementById('btn-sub-qris');
+    const secRek = document.getElementById('sub-section-rekening');
+    const secQris = document.getElementById('sub-section-qris');
+
+    if (sub === 'rekening') {
+      btnRek.classList.add('active');
+      btnQris.classList.remove('active');
+      secRek.style.display = 'block';
+      secQris.style.display = 'none';
+    } else {
+      btnRek.classList.remove('active');
+      btnQris.classList.add('active');
+      secRek.style.display = 'none';
+      secQris.style.display = 'block';
+    }
   }
 
   function previewBukti(input) {

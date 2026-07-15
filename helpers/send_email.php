@@ -368,3 +368,129 @@ function _buildEmailBodyCustPlain(array $d): string {
         'Segera login ke dashboard admin untuk memproses pesanan.',
     ]);
 }
+
+/**
+ * Kirim email reset password ke user.
+ *
+ * @param string $email
+ * @param string $nama
+ * @param string $resetLink
+ * @return array ['ok' => bool, 'msg' => string]
+ */
+function sendResetPasswordLink(string $email, string $nama, string $resetLink): array {
+    _loadEnvMail();
+
+    $mailFrom = $_ENV['MAIL_FROM'] ?? '';
+    $mailPass = $_ENV['MAIL_PASS'] ?? '';
+    $mailName = $_ENV['MAIL_NAME'] ?? 'SnapGear';
+
+    if (empty($mailFrom) || empty($mailPass)) {
+        return ['ok' => false, 'msg' => 'Konfigurasi email tidak lengkap di .env'];
+    }
+
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $mailFrom;
+        $mail->Password   = $mailPass;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        $mail->setFrom($mailFrom, $mailName);
+        $mail->addAddress($email, $nama);
+
+        $mail->isHTML(true);
+        $mail->Subject = '🔑 Permintaan Reset Password — SnapGear';
+        $mail->Body    = _buildResetEmailBody($nama, $resetLink);
+        $mail->AltBody = _buildResetEmailBodyPlain($nama, $resetLink);
+
+        $mail->send();
+        return ['ok' => true, 'msg' => 'Link reset password berhasil dikirim ke email.'];
+
+    } catch (Exception $e) {
+        return ['ok' => false, 'msg' => 'Gagal kirim email reset password: ' . $mail->ErrorInfo];
+    }
+}
+
+function _buildResetEmailBody(string $nama, string $resetLink): string {
+    $namaClean = htmlspecialchars($nama);
+    $linkEscaped = htmlspecialchars($resetLink);
+    $waktu = date('d M Y, H:i') . ' WIB';
+
+    return <<<HTML
+<!DOCTYPE html>
+<html lang="id">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f0f4ff;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(54,92,245,0.12);">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#365CF5,#00c6ff);padding:36px 40px;text-align:center;">
+      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:800;letter-spacing:-0.5px;">📷 SnapGear</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">Pemulihan Akun Anda</p>
+    </div>
+
+    <!-- Konten Utama -->
+    <div style="padding:40px;">
+      <h2 style="margin:0 0 16px;color:#0f172a;font-size:20px;font-weight:700;">Halo, {$namaClean}!</h2>
+      <p style="margin:0 0 24px;color:#475569;font-size:15px;line-height:1.6;">
+        Kami menerima permintaan untuk mereset kata sandi akun Anda di <strong>SnapGear</strong>. Silakan klik tombol di bawah ini untuk mereset kata sandi Anda:
+      </p>
+
+      <!-- Tombol CTA -->
+      <div style="text-align:center;margin:32px 0;">
+        <a href="{$linkEscaped}" target="_blank" style="display:inline-block;background:#365CF5;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(54,92,245,0.3);transition:all 0.3s;">
+          Reset Kata Sandi
+        </a>
+      </div>
+
+      <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+        <p style="margin:0;color:#92400e;font-size:13px;line-height:1.5;">
+          ⚠️ Tautan reset ini hanya berlaku selama <strong>24 jam</strong>. Jika Anda tidak merasa meminta reset password ini, abaikan email ini dan kata sandi Anda tidak akan berubah.
+        </p>
+      </div>
+
+      <hr style="border:0;border-top:1px solid #e2e8f0;margin:28px 0;">
+      <p style="margin:0;color:#64748b;font-size:12px;line-height:1.5;">
+        Jika tombol di atas tidak berfungsi, salin dan tempel tautan berikut ke browser Anda:<br>
+        <a href="{$linkEscaped}" target="_blank" style="color:#365CF5;word-break:break-all;">{$linkEscaped}</a>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f8faff;padding:24px 40px;text-align:center;border-top:1px solid #e8eeff;">
+      <p style="margin:0;color:#94a3b8;font-size:12px;">
+        Email ini dikirim otomatis oleh <strong>SnapGear</strong> · {$waktu}
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+HTML;
+}
+
+function _buildResetEmailBodyPlain(string $nama, string $resetLink): string {
+    return implode("\n", [
+        '=== RESET PASSWORD AKUN — SnapGear ===',
+        '',
+        'Halo, ' . $nama . ',',
+        '',
+        'Kami menerima permintaan untuk mereset kata sandi akun Anda di SnapGear.',
+        'Silakan salin dan tempel tautan di bawah ini ke browser Anda untuk mereset kata sandi Anda:',
+        '',
+        $resetLink,
+        '',
+        'Catatan:',
+        '- Tautan reset ini hanya berlaku selama 24 jam.',
+        '- Jika Anda tidak merasa melakukan permintaan ini, silakan abaikan email ini.',
+        '',
+        'Dikirim otomatis oleh SnapGear pada ' . date('d M Y, H:i') . ' WIB',
+    ]);
+}
