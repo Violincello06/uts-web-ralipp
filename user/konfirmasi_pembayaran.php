@@ -1,10 +1,11 @@
 <?php
 session_start();
-require_once 'koneksi.php';
-require_once 'helpers/send_email.php';
+$basePath = '../';
+require_once '../koneksi.php';
+require_once '../helpers/send_email.php';
 
-if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
-if (($_SESSION['role'] ?? 'user') === 'admin') { header("Location: main.php"); exit; }
+if (!isset($_SESSION['user_id'])) { header("Location: ../login.php"); exit; }
+if (($_SESSION['role'] ?? 'user') === 'admin') { header("Location: ../admin/main.php"); exit; }
 
 $user_id   = (int) $_SESSION['user_id'];
 $id_bayar  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -56,6 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
                 $error = 'Harap upload bukti transfer terlebih dahulu.';
             } else {
                 $uploadDir  = __DIR__ . '/assets/uploads/bukti_transfer/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
                 $ext        = strtolower(pathinfo($_FILES['bukti_transfer']['name'], PATHINFO_EXTENSION));
                 $allowedExt = ['jpg', 'jpeg', 'png', 'pdf'];
 
@@ -113,10 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Konfirmasi Pembayaran - SnapGear</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="assets/css/lineicons.css"/>
-  <link rel="stylesheet" href="assets/css/main.css"/>
-  <?php include 'partials/theme_head.php'; ?>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="../assets/css/lineicons.css"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <?php include '../partials/theme_head.php'; ?>
   <style>
     .payment-card {
       border-radius: 16px;
@@ -204,10 +208,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
 </head>
 <body>
 
-<?php include 'partials/sidebar_user.php'; ?>
+<?php include '../partials/sidebar_user.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/topbar.php'; ?>
+  <?php include '../partials/topbar.php'; ?>
   <section class="section">
     <div class="container-fluid">
 
@@ -344,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
                           <div class="text-xs text-gray">Cellopedia, Gaming</div>
                         </div>
                         <div class="qr-img-wrapper mb-3" style="background:#fff; padding:15px; display:inline-block; margin:0 auto; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                          <img src="assets/images/qris_code.png" alt="QRIS QR Code" style="width:180px; height:180px;">
+                          <img src="../assets/images/qris_code.png" alt="QRIS QR Code" style="width:180px; height:180px;">
                         </div>
                         <div class="text-xs text-gray">
                           Pindai kode QR di atas menggunakan aplikasi dompet digital (GoPay, OVO, Dana, LinkAja, ShopeePay) atau Mobile Banking Anda.
@@ -408,8 +412,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metode_bayar'])) {
   </section>
 </main>
 
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 <script>
   function selectMetode(metode) {
     document.getElementById('card-transfer').classList.remove('selected');

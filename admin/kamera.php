@@ -1,18 +1,19 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+$basePath = '../';
+require_once '../koneksi.php';
 
-if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     die('Composer autoload tidak ditemukan. Jalankan "composer install" terlebih dahulu.');
 }
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 if (($_SESSION['role'] ?? 'user') !== 'admin') {
-    header("Location: user_dashboard.php");
+    header("Location: ../user/user_dashboard.php");
     exit;
 }
 
@@ -400,17 +401,17 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Kamera - Rental Kamera</title>
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="assets/css/lineicons.css" type="text/css" />
-    <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" type="text/css" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <?php include 'partials/theme_head.php'; ?>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/lineicons.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/css/materialdesignicons.min.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <?php include '../partials/theme_head.php'; ?>
   </head>
   <body>
-<?php include 'partials/sidebar.php'; ?>
+<?php include '../partials/sidebar.php'; ?>
 
     <main class="main-wrapper">
-      <?php include 'partials/topbar.php'; ?>
+      <?php include '../partials/topbar.php'; ?>
 
       <section class="section">
         <div class="container-fluid">
@@ -573,224 +574,6 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
                 </ul>
               </nav>
 
-              <!-- Modals -->
-              <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="modalAddLabel">Tambah Kamera</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="kamera.php">
-                      <input type="hidden" name="form_action" value="add">
-                      <div class="modal-body">
-                        <?php if(!empty($errorAdd)): ?>
-                          <div class="alert alert-danger" role="alert"><?= htmlspecialchars($errorAdd) ?></div>
-                        <?php endif; ?>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Kode Kamera <span class="text-danger">*</span></label>
-                              <input type="text" name="kode_kamera" value="<?= htmlspecialchars($add_data['kode_kamera']) ?>" required />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="select-style-1">
-                              <label>Status Operasional</label>
-                              <div class="select-position">
-                                <select name="status">
-                                  <option value="tersedia" <?= $add_data['status'] == 'tersedia' ? 'selected' : '' ?>>Tersedia (Ready)</option>
-                                  <option value="disewa" <?= $add_data['status'] == 'disewa' ? 'selected' : '' ?>>Sedang Disewa</option>
-                                  <option value="rusak" <?= $add_data['status'] == 'rusak' ? 'selected' : '' ?>>Rusak / Maintenance</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="input-style-1">
-                          <label>Nama Kamera <span class="text-danger">*</span></label>
-                          <input type="text" name="nama_kamera" placeholder="Contoh: Sony Alpha A7 III" value="<?= htmlspecialchars($add_data['nama_kamera']) ?>" required />
-                        </div>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Merk / Brand</label>
-                              <input type="text" name="merk" placeholder="Sony, Canon, Nikon..." value="<?= htmlspecialchars($add_data['merk']) ?>" />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Tipe Kamera</label>
-                              <input type="text" name="tipe" placeholder="DSLR, Mirrorless, Action Cam..." value="<?= htmlspecialchars($add_data['tipe']) ?>" />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Harga Sewa / Hari (Rp) <span class="text-danger">*</span></label>
-                              <input type="number" name="harga_sewa" min="0" value="<?= htmlspecialchars($add_data['harga_sewa']) ?>" required />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Stok (unit)</label>
-                              <input type="number" name="stok" min="0" value="<?= htmlspecialchars($add_data['stok']) ?>" />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="input-style-1">
-                          <label>Deskripsi & Kelengkapan</label>
-                          <textarea name="deskripsi" rows="4" placeholder="Spesifikasi singkat, kelengkapan lensa, dll..."> <?= htmlspecialchars($add_data['deskripsi']) ?></textarea>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="main-btn success-btn btn-hover">Simpan Kamera</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="modalEditLabel">Edit Kamera</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="kamera.php">
-                      <input type="hidden" name="form_action" value="edit">
-                      <input type="hidden" name="id" id="edit_id" value="<?= htmlspecialchars($edit_data['id']) ?>">
-                      <div class="modal-body">
-                        <?php if(!empty($errorEdit)): ?>
-                          <div class="alert alert-danger" role="alert"><?= htmlspecialchars($errorEdit) ?></div>
-                        <?php endif; ?>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Kode Kamera <span class="text-danger">*</span></label>
-                              <input type="text" name="kode_kamera" id="edit_kode_kamera" value="<?= htmlspecialchars($edit_data['kode_kamera']) ?>" required />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="select-style-1">
-                              <label>Status Operasional</label>
-                              <div class="select-position">
-                                <select name="status" id="edit_status">
-                                  <option value="tersedia" <?= $edit_data['status'] == 'tersedia' ? 'selected' : '' ?>>Tersedia (Ready)</option>
-                                  <option value="disewa" <?= $edit_data['status'] == 'disewa' ? 'selected' : '' ?>>Sedang Disewa</option>
-                                  <option value="rusak" <?= $edit_data['status'] == 'rusak' ? 'selected' : '' ?>>Rusak / Maintenance</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="input-style-1">
-                          <label>Nama Kamera <span class="text-danger">*</span></label>
-                          <input type="text" name="nama_kamera" id="edit_nama_kamera" placeholder="Contoh: Sony Alpha A7 III" value="<?= htmlspecialchars($edit_data['nama_kamera']) ?>" required />
-                        </div>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Merk / Brand</label>
-                              <input type="text" name="merk" id="edit_merk" placeholder="Sony, Canon, Nikon..." value="<?= htmlspecialchars($edit_data['merk']) ?>" />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Tipe Kamera</label>
-                              <input type="text" name="tipe" id="edit_tipe" placeholder="DSLR, Mirrorless, Action Cam..." value="<?= htmlspecialchars($edit_data['tipe']) ?>" />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Harga Sewa / Hari (Rp) <span class="text-danger">*</span></label>
-                              <input type="number" name="harga_sewa" id="edit_harga_sewa" min="0" value="<?= htmlspecialchars($edit_data['harga_sewa']) ?>" required />
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="input-style-1">
-                              <label>Stok (unit)</label>
-                              <input type="number" name="stok" id="edit_stok" min="0" value="<?= htmlspecialchars($edit_data['stok']) ?>" />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="input-style-1">
-                          <label>Deskripsi & Kelengkapan</label>
-                          <textarea name="deskripsi" id="edit_deskripsi" rows="4" placeholder="Spesifikasi singkat, kelengkapan lensa, dll..."><?= htmlspecialchars($edit_data['deskripsi']) ?></textarea>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="main-btn warning-btn btn-hover">Simpan Perubahan</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="modalDeleteLabel">Hapus Kamera</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="kamera.php">
-                      <input type="hidden" name="form_action" value="hapus">
-                      <input type="hidden" name="id" id="delete_id" value="">
-                      <div class="modal-body">
-                        <p>Apakah Anda yakin ingin menghapus kamera <strong id="delete_name"></strong>?</p>
-                        <?php if(!empty($pesan_error)): ?>
-                          <div class="alert alert-danger" role="alert"><?= htmlspecialchars($pesan_error) ?></div>
-                        <?php endif; ?>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="main-btn danger-btn btn-hover">Hapus</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="modalImportLabel">Import Kamera dari Excel</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="kamera.php" enctype="multipart/form-data">
-                      <input type="hidden" name="form_action" value="import">
-                      <div class="modal-body">
-                        <div class="input-style-1">
-                          <label>Pilih File Excel (.xlsx, .xls, .csv) <span class="text-danger">*</span></label>
-                          <input type="file" name="file_excel" accept=".xlsx, .xls, .csv" required />
-                        </div>
-                        <div class="text-muted small mt-2">
-                          <p><strong>Catatan Format:</strong></p>
-                          <ul class="list-unstyled ps-3">
-                            <li>- Format kolom harus sesuai dengan format export Excel:</li>
-                            <li>  <code>No | Kode Kamera | Nama Kamera | Merk | Tipe | Harga Sewa | Stok | Status | Deskripsi</code></li>
-                            <li>- <strong>Kode Kamera</strong> & <strong>Nama Kamera</strong> wajib diisi.</li>
-                            <li>- Jika Kode Kamera sudah ada di database, data kamera tersebut akan diperbarui (di-update).</li>
-                            <li>- Status yang valid: <code>tersedia</code>, <code>disewa</code>, <code>rusak</code> (jika dikosongkan/salah akan otomatis diset <code>tersedia</code>).</li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="main-btn primary-btn btn-hover">Mulai Import</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -798,8 +581,230 @@ $kamera_list = $conn->query("SELECT * FROM kamera $where ORDER BY created_at DES
 
     </main>
 
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/main.js"></script>
+<!-- ====== Semua Modal dipindah ke sini (langsung di dalam body) ====== -->
+<!-- Modal Tambah Kamera -->
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAddLabel">Tambah Kamera</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="kamera.php">
+        <input type="hidden" name="form_action" value="add">
+        <div class="modal-body">
+          <?php if(!empty($errorAdd)): ?>
+            <div class="alert alert-danger" role="alert"><?= htmlspecialchars($errorAdd) ?></div>
+          <?php endif; ?>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Kode Kamera <span class="text-danger">*</span></label>
+                <input type="text" name="kode_kamera" value="<?= htmlspecialchars($add_data['kode_kamera']) ?>" required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="select-style-1">
+                <label>Status Operasional</label>
+                <div class="select-position">
+                  <select name="status">
+                    <option value="tersedia" <?= $add_data['status'] == 'tersedia' ? 'selected' : '' ?>>Tersedia (Ready)</option>
+                    <option value="disewa" <?= $add_data['status'] == 'disewa' ? 'selected' : '' ?>>Sedang Disewa</option>
+                    <option value="rusak" <?= $add_data['status'] == 'rusak' ? 'selected' : '' ?>>Rusak / Maintenance</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="input-style-1">
+            <label>Nama Kamera <span class="text-danger">*</span></label>
+            <input type="text" name="nama_kamera" placeholder="Contoh: Sony Alpha A7 III" value="<?= htmlspecialchars($add_data['nama_kamera']) ?>" required />
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Merk / Brand</label>
+                <input type="text" name="merk" placeholder="Sony, Canon, Nikon..." value="<?= htmlspecialchars($add_data['merk']) ?>" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Tipe Kamera</label>
+                <input type="text" name="tipe" placeholder="DSLR, Mirrorless, Action Cam..." value="<?= htmlspecialchars($add_data['tipe']) ?>" />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Harga Sewa / Hari (Rp) <span class="text-danger">*</span></label>
+                <input type="number" name="harga_sewa" min="0" value="<?= htmlspecialchars($add_data['harga_sewa']) ?>" required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Stok (unit)</label>
+                <input type="number" name="stok" min="0" value="<?= htmlspecialchars($add_data['stok']) ?>" />
+              </div>
+            </div>
+          </div>
+          <div class="input-style-1">
+            <label>Deskripsi & Kelengkapan</label>
+            <textarea name="deskripsi" rows="4" placeholder="Spesifikasi singkat, kelengkapan lensa, dll..."><?= htmlspecialchars($add_data['deskripsi']) ?></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="main-btn success-btn btn-hover">Simpan Kamera</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit Kamera -->
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditLabel">Edit Kamera</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="kamera.php">
+        <input type="hidden" name="form_action" value="edit">
+        <input type="hidden" name="id" id="edit_id" value="<?= htmlspecialchars($edit_data['id']) ?>">
+        <div class="modal-body">
+          <?php if(!empty($errorEdit)): ?>
+            <div class="alert alert-danger" role="alert"><?= htmlspecialchars($errorEdit) ?></div>
+          <?php endif; ?>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Kode Kamera <span class="text-danger">*</span></label>
+                <input type="text" name="kode_kamera" id="edit_kode_kamera" value="<?= htmlspecialchars($edit_data['kode_kamera']) ?>" required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="select-style-1">
+                <label>Status Operasional</label>
+                <div class="select-position">
+                  <select name="status" id="edit_status">
+                    <option value="tersedia" <?= $edit_data['status'] == 'tersedia' ? 'selected' : '' ?>>Tersedia (Ready)</option>
+                    <option value="disewa" <?= $edit_data['status'] == 'disewa' ? 'selected' : '' ?>>Sedang Disewa</option>
+                    <option value="rusak" <?= $edit_data['status'] == 'rusak' ? 'selected' : '' ?>>Rusak / Maintenance</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="input-style-1">
+            <label>Nama Kamera <span class="text-danger">*</span></label>
+            <input type="text" name="nama_kamera" id="edit_nama_kamera" placeholder="Contoh: Sony Alpha A7 III" value="<?= htmlspecialchars($edit_data['nama_kamera']) ?>" required />
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Merk / Brand</label>
+                <input type="text" name="merk" id="edit_merk" placeholder="Sony, Canon, Nikon..." value="<?= htmlspecialchars($edit_data['merk']) ?>" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Tipe Kamera</label>
+                <input type="text" name="tipe" id="edit_tipe" placeholder="DSLR, Mirrorless, Action Cam..." value="<?= htmlspecialchars($edit_data['tipe']) ?>" />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Harga Sewa / Hari (Rp) <span class="text-danger">*</span></label>
+                <input type="number" name="harga_sewa" id="edit_harga_sewa" min="0" value="<?= htmlspecialchars($edit_data['harga_sewa']) ?>" required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-style-1">
+                <label>Stok (unit)</label>
+                <input type="number" name="stok" id="edit_stok" min="0" value="<?= htmlspecialchars($edit_data['stok']) ?>" />
+              </div>
+            </div>
+          </div>
+          <div class="input-style-1">
+            <label>Deskripsi & Kelengkapan</label>
+            <textarea name="deskripsi" id="edit_deskripsi" rows="4" placeholder="Spesifikasi singkat, kelengkapan lensa, dll..."><?= htmlspecialchars($edit_data['deskripsi']) ?></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="main-btn warning-btn btn-hover">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Hapus Kamera -->
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDeleteLabel">Hapus Kamera</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="kamera.php">
+        <input type="hidden" name="form_action" value="hapus">
+        <input type="hidden" name="id" id="delete_id" value="">
+        <div class="modal-body">
+          <p>Apakah Anda yakin ingin menghapus kamera <strong id="delete_name"></strong>?</p>
+          <?php if(!empty($pesan_error ?? '')): ?>
+            <div class="alert alert-danger" role="alert"><?= htmlspecialchars($pesan_error) ?></div>
+          <?php endif; ?>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="main-btn danger-btn btn-hover">Hapus</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalImportLabel">Import Kamera dari Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="kamera.php" enctype="multipart/form-data">
+        <input type="hidden" name="form_action" value="import">
+        <div class="modal-body">
+          <div class="input-style-1">
+            <label>Pilih File Excel (.xlsx, .xls, .csv) <span class="text-danger">*</span></label>
+            <input type="file" name="file_excel" accept=".xlsx, .xls, .csv" required />
+          </div>
+          <div class="text-muted small mt-2">
+            <p><strong>Catatan Format:</strong></p>
+            <ul class="list-unstyled ps-3">
+              <li>- Format kolom: <code>No | Kode Kamera | Nama Kamera | Merk | Tipe | Harga Sewa | Stok | Status | Deskripsi</code></li>
+              <li>- <strong>Kode Kamera</strong> & <strong>Nama Kamera</strong> wajib diisi.</li>
+              <li>- Kode yang sudah ada akan diperbarui (update).</li>
+              <li>- Status valid: <code>tersedia</code>, <code>disewa</code>, <code>rusak</code>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="main-btn secondary-btn btn-hover" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="main-btn primary-btn btn-hover">Mulai Import</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
     <script>
 
       document.querySelectorAll('.btn-edit').forEach(btn => {

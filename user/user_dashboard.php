@@ -1,14 +1,15 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+$basePath = '../';
+require_once '../koneksi.php';
 
 // Proteksi halaman: Wajib login dan harus role 'user'
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 if (($_SESSION['role'] ?? 'user') === 'admin') {
-    header("Location: main.php");
+    header("Location: ../admin/main.php");
     exit;
 }
 
@@ -91,12 +92,12 @@ $riwayat = $conn->query("
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Portal Penyewa - SnapGear</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="assets/css/lineicons.css"/>
-  <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
-  <link rel="stylesheet" href="assets/css/main.css"/>
-  <link rel="stylesheet" href="assets/css/custom.css"/>
-  <?php include 'partials/theme_head.php'; ?>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="../assets/css/lineicons.css"/>
+  <link rel="stylesheet" href="../assets/css/materialdesignicons.min.css"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <link rel="stylesheet" href="../assets/css/custom.css"/>
+  <?php include '../partials/theme_head.php'; ?>
   <style>
     /* Styling Khas Portal Renter */
     .camera-card {
@@ -178,10 +179,10 @@ $riwayat = $conn->query("
 </head>
 <body>
 
-<?php include 'partials/sidebar_user.php'; ?>
+<?php include '../partials/sidebar_user.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/topbar.php'; ?>
+  <?php include '../partials/topbar.php'; ?>
 
   <section class="section">
     <div class="container-fluid">
@@ -277,7 +278,7 @@ $riwayat = $conn->query("
                         <?php endif; ?>
                       </td>
                       <td>
-                        <a href="penyewaan.php?export=pdf&id=<?= $row['id'] ?>" target="_blank" class="main-btn info-btn btn-hover btn-sm" style="padding: 4px 10px; font-size:11px;">
+                        <a href="../admin/penyewaan.php?export=pdf&id=<?= $row['id'] ?>" target="_blank" class="main-btn info-btn btn-hover btn-sm" style="padding: 4px 10px; font-size:11px;">
                           <i class="lni lni-file"></i> PDF
                         </a>
                       </td>
@@ -307,15 +308,15 @@ $riwayat = $conn->query("
                     // Pilih gambar berdasarkan merk kamera
                     $merkLower = strtolower(trim($cam['merk'] ?? ''));
                     if (str_contains($merkLower, 'canon')) {
-                        $camImg = 'assets/img/cameras/canon.png';
+                        $camImg = '../assets/img/cameras/canon.png';
                     } elseif (str_contains($merkLower, 'sony')) {
-                        $camImg = 'assets/img/cameras/sony.png';
+                        $camImg = '../assets/img/cameras/sony.png';
                     } elseif (str_contains($merkLower, 'nikon') || str_contains($merkLower, 'nika')) {
-                        $camImg = 'assets/img/cameras/nikon.png';
+                        $camImg = '../assets/img/cameras/nikon.png';
                     } elseif (str_contains($merkLower, 'gopro') || str_contains($merkLower, 'go pro')) {
-                        $camImg = 'assets/img/cameras/gopro.png';
+                        $camImg = '../assets/img/cameras/gopro.png';
                     } else {
-                        $camImg = 'assets/img/cameras/default.png';
+                        $camImg = '../assets/img/cameras/default.png';
                     }
                   ?>
 
@@ -424,8 +425,8 @@ $riwayat = $conn->query("
   </div>
 </div>
 
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 <script>
   // Event modal popup formulir sewa kamera
   const sewaModal = new bootstrap.Modal(document.getElementById('modalSewa'));

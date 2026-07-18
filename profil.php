@@ -1,5 +1,6 @@
 <?php
 session_start();
+$basePath = '';
 require_once 'koneksi.php';
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');

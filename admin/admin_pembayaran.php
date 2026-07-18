@@ -1,9 +1,10 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+$basePath = '../';
+require_once '../koneksi.php';
 
-if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
-if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: user_dashboard.php"); exit; }
+if (!isset($_SESSION['user_id'])) { header("Location: ../login.php"); exit; }
+if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: ../user/user_dashboard.php"); exit; }
 
 $notif = '';
 
@@ -88,11 +89,11 @@ $jumlahMenunggu = $conn->query("SELECT COUNT(*) as n FROM pembayaran WHERE statu
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Konfirmasi Pembayaran - Admin SnapGear</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="assets/css/lineicons.css"/>
-  <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
-  <link rel="stylesheet" href="assets/css/main.css"/>
-  <?php include 'partials/theme_head.php'; ?>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="../assets/css/lineicons.css"/>
+  <link rel="stylesheet" href="../assets/css/materialdesignicons.min.css"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <?php include '../partials/theme_head.php'; ?>
   <style>
     .bukti-thumb {
       width: 60px; height: 60px; object-fit: cover;
@@ -109,10 +110,10 @@ $jumlahMenunggu = $conn->query("SELECT COUNT(*) as n FROM pembayaran WHERE statu
 </head>
 <body>
 
-<?php include 'partials/sidebar.php'; ?>
+<?php include '../partials/sidebar.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/topbar.php'; ?>
+  <?php include '../partials/topbar.php'; ?>
   <section class="section">
     <div class="container-fluid">
 
@@ -217,15 +218,24 @@ $jumlahMenunggu = $conn->query("SELECT COUNT(*) as n FROM pembayaran WHERE statu
                     </td>
                     <td>
                       <?php if (!empty($row['bukti_transfer'])): ?>
-                        <?php $ext = strtolower(pathinfo($row['bukti_transfer'], PATHINFO_EXTENSION)); ?>
+                        <?php
+                          $buktiPath = $row['bukti_transfer'];
+                          // File tersimpan di folder user/, akses dari admin/ perlu prefix ../user/
+                          $buktiUrl  = '../user/' . ltrim($buktiPath, '/');
+                          $ext       = strtolower(pathinfo($buktiPath, PATHINFO_EXTENSION));
+                        ?>
                         <?php if ($ext === 'pdf'): ?>
-                          <a href="<?= htmlspecialchars($row['bukti_transfer']) ?>" target="_blank" class="text-primary text-sm">
+                          <a href="<?= htmlspecialchars($buktiUrl) ?>" target="_blank" class="text-primary text-sm">
                             <i class="lni lni-files"></i> PDF
                           </a>
                         <?php else: ?>
-                          <img src="<?= htmlspecialchars($row['bukti_transfer']) ?>" class="bukti-thumb"
-                               onclick="window.open('<?= htmlspecialchars($row['bukti_transfer']) ?>', '_blank')"
-                               alt="Bukti Transfer">
+                          <img src="<?= htmlspecialchars($buktiUrl) ?>" class="bukti-thumb"
+                               onclick="window.open('<?= htmlspecialchars($buktiUrl) ?>', '_blank')"
+                               alt="Bukti Transfer"
+                               onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                          <a href="<?= htmlspecialchars($buktiUrl) ?>" target="_blank" class="text-primary text-sm" style="display:none">
+                            <i class="lni lni-image"></i> Lihat Bukti
+                          </a>
                         <?php endif; ?>
                       <?php else: ?>
                         <span class="text-xs text-gray">-</span>
@@ -307,8 +317,8 @@ $jumlahMenunggu = $conn->query("SELECT COUNT(*) as n FROM pembayaran WHERE statu
   </div>
 </div>
 
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 <script>
   const modalAksi = new bootstrap.Modal(document.getElementById('modalAksi'));
 

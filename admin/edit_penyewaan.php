@@ -1,8 +1,9 @@
 <?php
 session_start();
-require_once 'koneksi.php';
-if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
-if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: user_dashboard.php"); exit; }
+$basePath = '../';
+require_once '../koneksi.php';
+if (!isset($_SESSION['user_id'])) { header("Location: ../login.php"); exit; }
+if (($_SESSION['role'] ?? 'user') !== 'admin') { header("Location: ../user/user_dashboard.php"); exit; }
 
 $id   = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if (!$id) { header("Location: penyewaan.php"); exit; }
@@ -52,18 +53,18 @@ $kamera_list = $conn->query("SELECT id, kode_kamera, nama_kamera, harga_sewa FRO
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Edit Penyewaan - Rental Kamera</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="assets/css/lineicons.css"/>
-  <link rel="stylesheet" href="assets/css/materialdesignicons.min.css"/>
-  <link rel="stylesheet" href="assets/css/main.css"/>
-  <?php include 'partials/theme_head.php'; ?>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="../assets/css/lineicons.css"/>
+  <link rel="stylesheet" href="../assets/css/materialdesignicons.min.css"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <?php include '../partials/theme_head.php'; ?>
 </head>
 <body>
 
-<?php include 'partials/sidebar.php'; ?>
+<?php include '../partials/sidebar.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/topbar.php'; ?>
+  <?php include '../partials/topbar.php'; ?>
 
   <section class="section">
     <div class="container-fluid">
@@ -221,8 +222,8 @@ $kamera_list = $conn->query("SELECT id, kode_kamera, nama_kamera, harga_sewa FRO
   </section>
 </main>
 
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 <script>
 const hargaPerHari = <?= $data['harga_sewa'] ?>;
 function hitungTotal() {

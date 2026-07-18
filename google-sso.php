@@ -136,9 +136,9 @@ if (isset($_GET['code'])) {
         $_SESSION['avatar']       = $user['avatar'] ?? '';
 
         if ($_SESSION['role'] === 'admin') {
-            header("Location: main.php");
+            header("Location: admin/main.php");
         } else {
-            header("Location: user_dashboard.php");
+            header("Location: user/user_dashboard.php");
         }
         exit;
     } else {
@@ -177,9 +177,9 @@ if (isset($_GET['code'])) {
             $_SESSION['avatar']       = $avatarUrl;
 
             if ($role === 'admin') {
-                header("Location: main.php");
+                header("Location: admin/main.php");
             } else {
-                header("Location: user_dashboard.php");
+                header("Location: user/user_dashboard.php");
             }
             exit;
         } else {

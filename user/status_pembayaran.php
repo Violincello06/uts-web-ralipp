@@ -1,16 +1,21 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+$basePath = '../';
+require_once '../koneksi.php';
 
-if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
-if (($_SESSION['role'] ?? 'user') === 'admin') { header("Location: main.php"); exit; }
+if (!isset($_SESSION['user_id'])) { header("Location: ../login.php"); exit; }
+if (($_SESSION['role'] ?? 'user') === 'admin') { header("Location: ../admin/main.php"); exit; }
 
 $user_id = (int) $_SESSION['user_id'];
 
 $list = $conn->query("
-    SELECT pb.*, k.nama_kamera, k.kode_kamera, k.merk
+    SELECT pb.*, k.nama_kamera, k.kode_kamera, k.merk, p.id as id_penyewaan
     FROM pembayaran pb
     JOIN kamera k ON pb.id_kamera = k.id
+    LEFT JOIN penyewaan p ON pb.user_id = p.user_id 
+        AND pb.id_kamera = p.id_kamera 
+        AND pb.tanggal_sewa = p.tanggal_sewa 
+        AND pb.tanggal_kembali = p.tanggal_kembali
     WHERE pb.user_id = $user_id
     ORDER BY pb.created_at DESC
 ");
@@ -21,17 +26,17 @@ $list = $conn->query("
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Status Pembayaran - SnapGear</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="assets/css/lineicons.css"/>
-  <link rel="stylesheet" href="assets/css/main.css"/>
-  <?php include 'partials/theme_head.php'; ?>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="../assets/css/lineicons.css"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <?php include '../partials/theme_head.php'; ?>
 </head>
 <body>
 
-<?php include 'partials/sidebar_user.php'; ?>
+<?php include '../partials/sidebar_user.php'; ?>
 
 <main class="main-wrapper">
-  <?php include 'partials/topbar.php'; ?>
+  <?php include '../partials/topbar.php'; ?>
   <section class="section">
     <div class="container-fluid">
 
@@ -112,6 +117,10 @@ $list = $conn->query("
                         <a href="konfirmasi_pembayaran.php?id=<?= $row['id'] ?>" class="main-btn warning-btn btn-hover btn-sm" style="font-size:11px;padding:4px 10px;">
                           Pilih Metode
                         </a>
+                      <?php elseif ($row['status'] === 'dikonfirmasi' && !empty($row['id_penyewaan'])): ?>
+                        <a href="../admin/penyewaan.php?export=pdf&id=<?= $row['id_penyewaan'] ?>" target="_blank" class="main-btn success-btn btn-hover btn-sm" style="font-size:11px;padding:4px 10px;">
+                          <i class="lni lni-file"></i> Nota
+                        </a>
                       <?php elseif (!empty($row['bukti_transfer'])): ?>
                         <a href="<?= htmlspecialchars($row['bukti_transfer']) ?>" target="_blank" class="main-btn info-btn btn-hover btn-sm" style="font-size:11px;padding:4px 10px;">
                           <i class="lni lni-image"></i> Bukti
@@ -138,7 +147,7 @@ $list = $conn->query("
   </section>
 </main>
 
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>

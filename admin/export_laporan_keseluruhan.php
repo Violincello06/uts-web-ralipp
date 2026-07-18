@@ -1,18 +1,18 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+require_once '../koneksi.php';
 
-if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     die('Composer autoload tidak ditemukan. Jalankan "composer install" terlebih dahulu.');
 }
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 if (($_SESSION['role'] ?? 'user') !== 'admin') {
-    header("Location: user_dashboard.php");
+    header("Location: ../user/user_dashboard.php");
     exit;
 }
 

@@ -1,13 +1,14 @@
 <?php
 session_start();
-require_once 'koneksi.php';
+$basePath = '../';
+require_once '../koneksi.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 if (($_SESSION['role'] ?? 'user') !== 'admin') {
-    header("Location: user_dashboard.php");
+    header("Location: ../user/user_dashboard.php");
     exit;
 }
 
@@ -28,17 +29,17 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<?php include ('partials/header.php')?>
+<?php include ('../partials/header.php')?>
   <body>
     <div id="preloader">
       <div class="spinner"></div>
     </div>
 
   <?php
-  include('partials/sidebar.php')
+  include('../partials/sidebar.php')
   ?>
     <main class="main-wrapper">
-      <?php include 'partials/topbar.php'; ?>
+      <?php include '../partials/topbar.php'; ?>
       <section class="section">
         <div class="container-fluid">
           
@@ -172,8 +173,8 @@ $kamera_list = $conn->query("SELECT * FROM kamera ORDER BY created_at DESC LIMIT
       </section>
     </main>
 
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/main.js"></script>
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>

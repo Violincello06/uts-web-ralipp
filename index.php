@@ -2,7 +2,11 @@
 session_start();
 // Jika sudah login, langsung ke dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: main.php");
+    if (($_SESSION['role'] ?? 'user') === 'admin') {
+        header("Location: admin/main.php");
+    } else {
+        header("Location: user/user_dashboard.php");
+    }
     exit;
 }
 ?>

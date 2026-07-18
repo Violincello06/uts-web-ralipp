@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
                 $_SESSION['role']         = $userRole;
                 $_SESSION['avatar']       = $user['avatar'] ?? '';
-                header("Location: user_dashboard.php");
+                header("Location: user/user_dashboard.php");
                 exit;
             }
         } else {
